@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TipoArma extends Model
 {
-            protected $table = 'tipos_arma'; 
-            protected $fillable = ['nome'];
+    use HasFactory;
+    
+    protected $table = 'tipos_arma'; // Nome correto no DB
+    protected $fillable = ['nome']; // Permite a inserção de dados no Seeder
 }
