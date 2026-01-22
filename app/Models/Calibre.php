@@ -2,17 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Calibre extends Model
 {
-    use HasFactory;
+    protected $table = 'calibres';
     protected $fillable = ['nome'];
-}
-// ...
-class Fabricante extends Model
-{
-    use HasFactory;
-    protected $fillable = ['nome'];
+
+    public function modelos()
+    {
+        return $this->hasMany(ModeloArma::class, 'calibre_id');
+    }
 }

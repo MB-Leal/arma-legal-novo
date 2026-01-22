@@ -2,91 +2,40 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Associado;
+use App\Models\ModeloArma;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ModeloArmaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Listar vitrine de armas para o associado
     public function index()
     {
-        //
+        $modelos = ModeloArma::with('imagens')->get();
+        return view('modelos.index', compact('modelos'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Salvar novo modelo com imagem no Storage
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'cpf' => 'required|unique:associados',
-            'matricula' => 'required|unique:associados',
-            'nome_completo' => 'required',
-            'cep' => 'required'
+        $request->validate([
+            'nome' => 'required',
+            'preco' => 'required|numeric',
+            'foto_principal' => 'required|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
-        // Cria o associado
-        $associado = Associado::create($request->only([
-            'nome_completo',
-            'cpf',
-            'rg_militar',
-            'matricula',
-            'posto_graduacao',
-            'opm'
-        ]));
+        $modelo = ModeloArma::create($request->all());
 
-        // Cria o endereço vinculado
-        $associado->endereco()->create($request->only([
-            'cep',
-            'logradouro',
-            'numero',
-            'bairro',
-            'cidade',
-            'estado'
-        ]));
+        if ($request->hasFile('foto_principal')) {
+            // Salva em storage/app/public/modelos
+            $path = $request->file('foto_principal')->store('modelos', 'public');
 
-        return response()->json(['message' => 'Associado cadastrado com sucesso'], 201);
-    }
+            $modelo->imagens()->create([
+                'caminho' => $path,
+                'principal' => true
+            ]);
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('modelos.index')->with('success', 'Modelo cadastrado!');
     }
 }
