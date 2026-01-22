@@ -36,9 +36,8 @@ class PedidoArmaController extends Controller
 
         return back()->with('success', 'Pedido atualizado!');
     }
-    /**
-     * Display a listing of the resource.
-     */
+
+
     public function index()
     {
         //
