@@ -17,14 +17,25 @@ Route::post('/logout-associado', [AuthController::class, 'logout'])->name('acess
 // --- ÁREA DO ASSOCIADO (Protegida) ---
 Route::middleware(['auth.associado'])->group(function () {
     Route::get('/catalogo', [PedidoArmaController::class, 'vitrine'])->name('associado.catalogo');
+    Route::get('/catalogo/{id}', [PedidoArmaController::class, 'showDetalhes'])->name('associado.detalhes');
+    Route::get('/simulador/{id}', [PedidoArmaController::class, 'showSimulador'])->name('associado.simulador');
+
+    // Rota de confirmação de endereço
+    Route::get('/confirmar-dados/{modelo_id}', [PedidoArmaController::class, 'confirmarDados'])->name('associado.confirmar');
+    //Route::get('/confirmar/{modelo_id}', [PedidoArmaController::class, 'confirmarDados'])->name('associado.confirmar');
+    Route::post('/finalizar-pedido', [PedidoArmaController::class, 'finalizarPedido'])->name('associado.finalizar');
+
     Route::get('/meu-pedido', [PedidoArmaController::class, 'meuPedido'])->name('associado.pedido');
-    Route::post('/finalizar-intencao', [PedidoArmaController::class, 'store'])->name('associado.comprar');
-    Route::get('/pedido/{id}/pdf', [PedidoArmaController::class, 'gerarPDF'])->name('associado.pdf');
+    // Tela de sucesso
+    Route::get('/pedido-concluido/{id}', [PedidoArmaController::class, 'sucesso'])->name('associado.sucesso');
 });
 
 // --- ÁREA ADMINISTRATIVA ---
 // Aqui usamos 'auth' para garantir que o Marcos/Adriano estejam logados no sistema padrão
 Route::middleware(['auth', 'is.admin'])->prefix('admin')->group(function () {
+    Route::get('/admin/login', [AuthController::class, 'showAdminLogin'])->name('admin.login');
+    Route::post('/admin/login', [AuthController::class, 'adminLogin'])->name('admin.login.submit');
+    Route::post('/admin/logout', [AuthController::class, 'adminLogout'])->name('admin.logout');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     // Rotas de CRUD (Create, Read, Update, Delete)

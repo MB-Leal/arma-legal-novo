@@ -38,13 +38,10 @@
                         <span class="text-2xl font-black text-blue-900">R$ {{ number_format($modelo->preco, 2, ',', '.') }}</span>
                     </div>
 
-                    <form action="{{ route('associado.comprar') }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="modelo_id" value="{{ $modelo->id }}">
-                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow transition">
-                            TENHO INTERESSE
-                        </button>
-                    </form>
+                    <a href="{{ route('associado.detalhes', $modelo->id) }}"
+                        class="w-full block text-center bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow transition uppercase text-sm">
+                        Tenho Interesse
+                    </a>
                 </div>
             </div>
         </div>
