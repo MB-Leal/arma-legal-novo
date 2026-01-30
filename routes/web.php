@@ -36,6 +36,7 @@ Route::middleware(['auth', 'is.admin'])->prefix('admin')->group(function () {
     Route::get('/admin/login', [AuthController::class, 'showAdminLogin'])->name('admin.login');
     Route::post('/admin/login', [AuthController::class, 'adminLogin'])->name('admin.login.submit');
     Route::post('/admin/logout', [AuthController::class, 'adminLogout'])->name('admin.logout');
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     // Rotas de CRUD (Create, Read, Update, Delete)
