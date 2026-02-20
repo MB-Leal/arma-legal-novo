@@ -9,12 +9,19 @@
     <link rel="icon" href="{{ asset('imagens/armaLegal.ico') }}">
 
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         body {
             font-family: 'Inter', sans-serif;
         }
+        /* Previne o scroll quando o modal estiver aberto */
+        [x-cloak] { display: none !important; }
     </style>
 </head>
 
@@ -25,7 +32,7 @@
             <div class="flex justify-between items-center py-4">
 
                 <a href="{{ route('associado.catalogo') }}" class="flex items-center space-x-3">
-                    <img src="{{ asset('imagens/arma.ico') }}" alt="Logo" class="h-10 bg-white rounded-full p-1">
+                    <img src="{{ asset('imagens/arma-de-fogo.ico') }}" alt="Logo" class="h-10 bg-white rounded-full p-1">
                     <span class="font-extrabold text-xl tracking-tighter uppercase">Arma Legal</span>
                 </a>
 

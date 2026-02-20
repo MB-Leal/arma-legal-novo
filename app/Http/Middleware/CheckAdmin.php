@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class CheckAdmin
 {
@@ -15,6 +16,11 @@ class CheckAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        return $next($request);
+        if (Auth::check() && Auth::user()->is_admin) {
+            return $next($request);
+        }
+
+        // Se não for admin ou não estiver logado, redireciona para o login admin
+        return redirect()->route('admin.login')->with('erro', 'Acesso restrito a administradores.');
     }
 }

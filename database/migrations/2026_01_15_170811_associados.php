@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('posto_graduacao');
             $table->string('opm');
             $table->enum('status', ['ativo', 'inativo', 'reserva'])->default('ativo');
+            $table->string('email')->nullable();
+        $table->string('celular')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

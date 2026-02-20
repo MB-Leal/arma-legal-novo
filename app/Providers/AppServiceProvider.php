@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Schema::defaultStringLength(191);
+        view()->composer('layouts.admin', function ($view) {
+            $countNovos = \App\Models\PedidoArma::where('status_pedido', 'iniciado')->count();
+            $view->with('novosPedidosCount', $countNovos);
+        });
     }
 }

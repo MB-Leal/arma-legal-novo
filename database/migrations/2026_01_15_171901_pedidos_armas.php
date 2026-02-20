@@ -15,21 +15,18 @@ return new class extends Migration
             $table->id();
             $table->foreignId('associado_id')->constrained('associados');
             $table->foreignId('modelo_id')->constrained('modelos_armas');
-
-            // O número de série pode ser preenchido pela administração quando a fabricante enviar
             $table->string('numero_serie')->nullable();
-
+            $table->integer('parcelas')->default(1);
+            $table->decimal('valor_total', 10, 2)->nullable();
             $table->enum('status_pedido', [
                 'iniciado',
-                'aguardando_pagamento',
                 'pago',
                 'em_fabricacao',
-                'enviado_para_registro', // Fase onde o SIGMA seria gerado futuramente
                 'concluido',
                 'cancelado'
             ])->default('iniciado');
-
             $table->date('data_pedido');
+            $table->text('observacao_admin')->nullable();
             $table->timestamps();
         });
     }

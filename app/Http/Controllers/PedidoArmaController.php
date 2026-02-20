@@ -7,6 +7,7 @@ use App\Models\PedidoArma;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\TaxaParcelamento;
 
 class PedidoArmaController extends Controller
 {
@@ -24,21 +25,7 @@ class PedidoArmaController extends Controller
         return view('associado.catalogo', compact('modelos', 'nomeAssociado'));
     }
 
-    /**
-     * Registra a intenção de compra (Pedido)
-     */
-    public function store(Request $request)
-    {
-        $pedido = PedidoArma::create([
-            'associado_id' => Session::get('associado_id'),
-            'modelo_id'    => $request->modelo_id,
-            'status_pedido' => 'iniciado',
-            'data_pedido'   => now()
-        ]);
-
-        return redirect()->route('associado.pedido')
-            ->with('success', 'A sua intenção de compra foi registada com sucesso!');
-    }
+   
     public function meusPedidos()
     {
         $pedidos = PedidoArma::with('modelo')
@@ -77,8 +64,8 @@ class PedidoArmaController extends Controller
     public function gerarRequerimento($id)
     {
         // Busca o pedido com todas as relações para evitar erros de "null" no PDF
-        $pedido = PedidoArma::with(['associado.endereco', 'modelo.fabricante', 'modelo.calibre'])
-            ->findOrFail($id);
+        $pedido = PedidoArma::with(['associado.endereco', 'modelo'])
+        ->findOrFail($id);
 
         // Dados que vão preencher as variáveis no Blade do PDF
         $dados = [
@@ -94,4 +81,42 @@ class PedidoArmaController extends Controller
         // Faz o download automático com o nome do associado e CPF
         return $pdf->download("Requerimento_{$pedido->associado->cpf}.pdf");
     }
+    public function showSimulador($id)
+    {
+        $modelo = ModeloArma::findOrFail($id);
+
+        // BUSCA AS TAXAS: Cria um array onde a chave é a parcela e o valor é o percentual
+        // Ex: [1 => 0.0090, 2 => 0.0136, ...]
+        $taxas = TaxaParcelamento::pluck('percentual', 'parcela');
+
+        return view('associado.simulador', compact('modelo', 'taxas'));
+    }
+    public function finalizarPedido(Request $request)
+{
+    // 1. Busca os dados oficiais no Banco (Segurança)
+    $modelo = ModeloArma::findOrFail($request->modelo_id);
+    
+    // 2. Busca a taxa exata para a parcela escolhida
+    $taxaDigital = TaxaParcelamento::where('parcela', $request->parcelas)->first();
+    
+    if (!$taxaDigital) {
+        return back()->with('erro', 'Opção de parcelamento inválida.');
+    }
+
+    // 3. CÁLCULO DINÂMICO (Preço Base + Taxa)
+    // Ex: 5.400,00 * (1 + 0.0629) = 5.739,66
+    $valorTotalCalculado = $modelo->preco * (1 + $taxaDigital->percentual);
+
+    // 4. Grava o pedido com o valor total final "congelado"
+    $pedido = PedidoArma::create([
+        'associado_id' => session('associado_id'),
+        'modelo_id'    => $modelo->id,
+        'parcelas'     => $request->parcelas,
+        'valor_total'  => $valorTotalCalculado, // Valor exato que você simulou
+        'status_pedido' => 'iniciado',
+        'data_pedido'  => now()
+    ]);
+
+    return redirect()->route('associado.sucesso', $pedido->id);
+}
 }

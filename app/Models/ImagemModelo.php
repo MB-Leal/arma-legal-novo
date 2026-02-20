@@ -2,13 +2,20 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ImagemModelo extends Model
 {
+    use HasFactory;
+
     protected $table = 'imagens_modelos';
 
-    protected $fillable = ['modelo_id', 'caminho', 'principal'];
+    protected $fillable = [
+        'modelo_id',
+        'caminho',
+        'principal'
+    ];
 
     public function modelo()
     {

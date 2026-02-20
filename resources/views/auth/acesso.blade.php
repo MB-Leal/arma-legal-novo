@@ -63,6 +63,10 @@
                 class="w-full bg-blue-900 hover:bg-blue-800 text-white font-black py-4 rounded shadow-lg transition duration-200 uppercase tracking-widest text-sm">
                 Validar e Acessar
             </button>
+            <div style="position: center; bottom: 20px; right: 20px; background: #333; color: #fff; padding: 10px; border-radius: 5px; font-family: sans-serif; font-size: 14px;">
+                🔔 IMPORTANTE: Caso seja associado mas não consiga entrar no sistema, favor, entre em contato conosco pelo Whatsapp: 9198895-3551
+            </div>
+
         </form>
 
         <div class="mt-8 pt-6 border-t border-slate-200 text-center">

@@ -19,22 +19,24 @@ class ModeloArmaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nome' => 'required',
-            'preco' => 'required|numeric',
-            'foto_principal' => 'required|image|mimes:jpeg,png,jpg|max:2048'
-        ]);
+        'nome' => 'required',
+        'fabricante' => 'required',
+        'preco' => 'required|numeric',
+        'fotos.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048' // Valida cada foto no array
+    ]);
 
         $modelo = ModeloArma::create($request->all());
 
-        if ($request->hasFile('foto_principal')) {
-            // Salva em storage/app/public/modelos
-            $path = $request->file('foto_principal')->store('modelos', 'public');
-
+        if ($request->hasFile('fotos')) {
+        foreach ($request->file('fotos') as $index => $foto) {
+            $caminho = $foto->store('modelos', 'public');
+            
             $modelo->imagens()->create([
-                'caminho' => $path,
-                'principal' => true
+                'caminho' => $caminho,
+                'principal' => ($index === 0) // Define a primeira foto como principal
             ]);
         }
+    }
 
         return redirect()->route('modelos.index')->with('success', 'Modelo cadastrado!');
     }
