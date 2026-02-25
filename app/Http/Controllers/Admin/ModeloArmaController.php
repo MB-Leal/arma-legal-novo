@@ -34,36 +34,54 @@ class ModeloArmaController extends Controller
      * Salva o novo modelo
      */
     public function store(Request $request)
-    {
-        // 1. Validação rigorosa para evitar erros de banco
-        $request->validate([
-            'nome' => 'required',
-            'fabricante' => 'required',
-            'tipo' => 'required',
-            'calibre' => 'required',
-            'preco' => 'required|numeric',
-            'quantidade' => 'required|integer',
-            'fotos.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
-        ]);
+{
+    // 1. Limpeza do preço (Troca vírgula por ponto para o banco entender)
+    $input = $request->all();
 
-        // 2. Gravação dos dados técnicos
-        $modelo = ModeloArma::create($request->all());
-
-        // 3. Gravação das até 3 imagens
-        if ($request->hasFile('fotos')) {
-            foreach ($request->file('fotos') as $index => $foto) {
-                if ($index < 3) { // Garante o limite de 3
-                    $caminho = $foto->store('modelos', 'public');
-                    $modelo->imagens()->create([
-                        'caminho' => $caminho,
-                        'principal' => ($index === 0) // A primeira é a principal
-                    ]);
-                }
-            }
-        }
-
-        return redirect()->route('modelos.index')->with('success', 'Modelo cadastrado com sucesso!');
+    if ($request->has('preco')) {
+        $precoLimpo = str_replace(',', '.', str_replace('.', '', $request->preco));
+        $request->merge(['preco' => $precoLimpo]);
     }
+
+    // 2. Validação completa de todos os campos da migration
+    $validatedData = $request->validate([
+        'nome' => 'required|string|max:255',
+        'fabricante' => 'required|string',
+        'tipo' => 'required|string',
+        'calibre' => 'required|string',
+        'acabamento' => 'required|string',
+        'capacidade_tiro' => 'required|string',
+        'sistema_funcionamento' => 'required|string',
+        'comprimento_cano' => 'required|string',
+        'tipo_alma' => 'required|string',
+        'qtd_raias' => 'required|integer',
+        'sentido_raias' => 'required|string',
+        'pais_fabricacao' => 'required|string',
+        'preco' => 'required|numeric',
+        'quantidade' => 'required|integer',
+        'fotos.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,bmp,svg|max:5120'
+    ]);
+
+    // 3. Gravação usando os dados limpos
+    // Garantimos que o preço salvo é o formatado (ponto decimal)
+    $validatedData['preco'] = $input['preco'];
+    $validatedData['nome'] = mb_strtoupper($validatedData['nome']);
+
+    $modelo = ModeloArma::create($validatedData);
+
+    // 4. Salva as imagens
+    if ($request->hasFile('fotos')) {
+        foreach ($request->file('fotos') as $index => $foto) {
+            $path = $foto->store('modelos', 'public');
+            $modelo->imagens()->create([
+                'caminho' => $path,
+                'principal' => ($index === 0)
+            ]);
+        }
+    }
+
+    return redirect()->route('modelos.index')->with('success', 'Modelo cadastrado com sucesso!');
+}
 
     /**
      * Tela de edição

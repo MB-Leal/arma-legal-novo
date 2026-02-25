@@ -6,6 +6,7 @@ use App\Models\Associado;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -57,5 +58,42 @@ class AuthController extends Controller
     {
         Session::forget(['associado_id', 'associado_nome']);
         return redirect()->route('acesso.index');
+    }
+
+    // Exibe a tela de login admin
+    public function showAdminLogin()
+    {
+        return view('admin.login');
+    }
+
+    // Processa o login (Marcos/Adriano)
+    public function adminLogin(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+
+            // Verifica se é admin (conforme campo na migration que criamos)
+            if (Auth::user()->is_admin) {
+                return redirect()->intended('/admin/dashboard');
+            }
+
+            Auth::logout();
+            return back()->withErrors(['email' => 'Acesso negado. Usuário não é administrador.']);
+        }
+
+        return back()->withErrors(['email' => 'As credenciais informadas estão incorretas.']);
+    }
+
+    public function adminLogout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('admin.login');
     }
 }

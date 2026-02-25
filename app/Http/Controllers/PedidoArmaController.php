@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\ModeloArma;
 use App\Models\PedidoArma;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\TaxaParcelamento;
+use App\Models\Associado;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
 
 class PedidoArmaController extends Controller
 {
@@ -16,12 +18,8 @@ class PedidoArmaController extends Controller
      */
     public function vitrine()
     {
-        // Pegamos o nome da sessão para saudar o associado
         $nomeAssociado = Session::get('associado_nome');
-
-        // Buscamos os modelos de armas com suas imagens
         $modelos = ModeloArma::with('imagens')->get();
-
         return view('associado.catalogo', compact('modelos', 'nomeAssociado'));
     }
 
@@ -60,63 +58,135 @@ class PedidoArmaController extends Controller
         // 4. Retorna o PDF para download ou visualização
         return $pdf->stream("requerimento_{$pedido->associado->cpf}.pdf");
     } */
-
-    public function gerarRequerimento($id)
+    /**
+     * Registra a intenção de compra (Pedido)
+     */
+    public function store(Request $request)
     {
-        // Busca o pedido com todas as relações para evitar erros de "null" no PDF
-        $pedido = PedidoArma::with(['associado.endereco', 'modelo'])
-        ->findOrFail($id);
+        $pedido = PedidoArma::create([
+            'associado_id' => Session::get('associado_id'),
+            'modelo_id'    => $request->modelo_id,
+            'status_pedido' => 'iniciado',
+            'data_pedido'   => now()
+        ]);
 
-        // Dados que vão preencher as variáveis no Blade do PDF
-        $dados = [
-            'pedido'    => $pedido,
-            'associado' => $pedido->associado,
-            'arma'      => $pedido->modelo,
-            'data'      => now()->format('d/m/Y'),
-        ];
-
-        // Carrega a view específica do PDF
-        $pdf = Pdf::loadView('associado.pdf_requerimento', $dados);
-
-        // Faz o download automático com o nome do associado e CPF
-        return $pdf->download("Requerimento_{$pedido->associado->cpf}.pdf");
+        return redirect()->route('associado.pedido')
+            ->with('success', 'A sua intenção de compra foi registada com sucesso!');
     }
-    public function showSimulador($id)
-    {
-        $modelo = ModeloArma::findOrFail($id);
 
-        // BUSCA AS TAXAS: Cria um array onde a chave é a parcela e o valor é o percentual
-        // Ex: [1 => 0.0090, 2 => 0.0136, ...]
-        $taxas = TaxaParcelamento::pluck('percentual', 'parcela');
 
-        return view('associado.simulador', compact('modelo', 'taxas'));
-    }
-    public function finalizarPedido(Request $request)
+public function gerarRequerimento($id)
 {
-    // 1. Busca os dados oficiais no Banco (Segurança)
-    $modelo = ModeloArma::findOrFail($request->modelo_id);
-    
-    // 2. Busca a taxa exata para a parcela escolhida
-    $taxaDigital = TaxaParcelamento::where('parcela', $request->parcelas)->first();
-    
-    if (!$taxaDigital) {
-        return back()->with('erro', 'Opção de parcelamento inválida.');
+    $pedido = PedidoArma::with(['associado.endereco', 'modelo'])->findOrFail($id);
+
+    // Verifica se o pedido pertence ao associado logado (segurança)
+    if ($pedido->associado_id != session('associado_id')) {
+        abort(403);
     }
 
-    // 3. CÁLCULO DINÂMICO (Preço Base + Taxa)
-    // Ex: 5.400,00 * (1 + 0.0629) = 5.739,66
-    $valorTotalCalculado = $modelo->preco * (1 + $taxaDigital->percentual);
+    $pdf = Pdf::loadView('pdf.requerimento', compact('pedido'));
+    
+    // Nome do arquivo: Requerimento_NOME_DATA.pdf
+    $filename = 'Requerimento_' . str_replace(' ', '_', $pedido->associado->nome_completo) . '.pdf';
 
-    // 4. Grava o pedido com o valor total final "congelado"
-    $pedido = PedidoArma::create([
-        'associado_id' => session('associado_id'),
-        'modelo_id'    => $modelo->id,
-        'parcelas'     => $request->parcelas,
-        'valor_total'  => $valorTotalCalculado, // Valor exato que você simulou
-        'status_pedido' => 'iniciado',
-        'data_pedido'  => now()
-    ]);
-
-    return redirect()->route('associado.sucesso', $pedido->id);
+    return $pdf->stream($filename);
 }
+    // 2. Exibe os detalhes de uma arma específica
+    public function showDetalhes($id)
+    {
+        $modelo = ModeloArma::with('imagens')->findOrFail($id);
+        return view('associado.detalhes', compact('modelo'));
+    }
+
+    // 3. Abre o simulador para a arma escolhida
+    
+
+    // 4. Etapa de confirmação/preenchimento de endereço (Onde entra o ViaCEP)
+    public function confirmarDados($modelo_id, Request $request)
+    {
+        $associado = Associado::with('endereco')->find(session('associado_id'));
+        $modelo = ModeloArma::findOrFail($modelo_id);
+        $parcelas = $request->query('parcelas', 1);
+
+        return view('associado.confirmar', compact('associado', 'modelo', 'parcelas'));
+    }
+
+    // 6. Lista os pedidos do associado (CORREÇÃO DO ERRO 500)
+    public function meuPedido()
+    {
+        $pedidos = PedidoArma::with('modelo')
+            ->where('associado_id', Session::get('associado_id'))
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('associado.pedidos', compact('pedidos'));
+    }
+    public function sucesso($id)
+    {
+        // Busca o pedido garantindo que pertença ao associado logado por segurança
+        $pedido = PedidoArma::with('modelo')
+            ->where('associado_id', session('associado_id'))
+            ->findOrFail($id);
+
+        return view('associado.sucesso', compact('pedido'));
+    }
+public function showSimulador($id)
+{
+    $modelo = ModeloArma::with('imagens')->findOrFail($id);
+
+    // Agora lendo da tabela taxas_parcelamento via Model
+    $taxas = TaxaParcelamento::orderBy('parcela')->pluck('percentual', 'parcela');
+
+    // Fallback caso a tabela esteja vazia
+    if ($taxas->isEmpty()) {
+        for ($i = 1; $i <= 24; $i++) {
+            $taxas->put($i, $i * 0.0090); 
+        }
+    }
+
+    return view('associado.simulador', compact('modelo', 'taxas'));
+}
+
+public function conferirDados(Request $request) 
+{
+    $modelo = ModeloArma::with('imagens')->findOrFail($request->modelo_id);
+    $parcelas = $request->parcelas;
+    $associado = Associado::with('endereco')->findOrFail(session('associado_id'));
+    
+    // Busca o percentual na tabela taxas_parcelamento
+    $taxaObj = TaxaParcelamento::where('parcela', $parcelas)->first();
+    
+    $percentual = $taxaObj ? $taxaObj->percentual : ($parcelas * 0.0090);
+    $valor_total = $modelo->preco * (1 + $percentual);
+
+    return view('associado.conferir', compact('modelo', 'parcelas', 'associado', 'valor_total'));
+}
+
+public function finalizarPedido(Request $request)
+{
+    $pedido_id = DB::transaction(function () use ($request) {
+        $associado = Associado::findOrFail(session('associado_id'));
+        
+        // Atualiza Associado
+        $associado->update($request->only(['rg_militar', 'posto_graduacao', 'opm', 'email', 'celular']));
+
+        // Atualiza Endereço
+        $associado->endereco()->update($request->only(['cep', 'logradouro', 'numero', 'bairro', 'cidade', 'estado', 'complemento']));
+
+        // Cria o Pedido (Ajustado para bater com sua migration: 'parcelas')
+        $pedido = PedidoArma::create([
+            'associado_id' => $associado->id,
+            'modelo_id'    => $request->modelo_id,
+            'valor_total'  => $request->valor_total,
+            'parcelas'     => $request->parcelas, // Nome da coluna conforme sua migration
+            'status_pedido'=> 'iniciado',
+            'data_pedido'  => now(),
+        ]);
+
+        return $pedido->id;
+    });
+
+    return redirect()->route('associado.pdf', $pedido_id);
+}
+
 }

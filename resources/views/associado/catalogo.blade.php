@@ -1,220 +1,170 @@
 @extends('layouts.associado')
 
 @section('content')
-<div class="container mx-auto px-4 py-8" x-data="{ openModal: false, arma: {} }">
+<div class="min-h-screen bg-slate-950 text-white selection:bg-blue-500/30" 
+     style="background-image: linear-gradient(rgba(2, 6, 23, 0.94), rgba(2, 6, 23, 0.94)), url('{{ asset('imagens/banner-militar.jpg') }}'); background-size: cover; background-position: center; background-attachment: fixed;"
+     x-data="{ 
+        openModal: false, 
+        arma: {}, 
+        filtroFabricante: '' 
+     }">
 
-    <div class="mb-10 flex flex-col md:flex-row justify-between items-end border-b border-slate-200 pb-6">
-        <div>
-            <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tighter">Armas Disponíveis</h1>
-            <p class="text-slate-500 font-bold uppercase text-xs">Olá, {{ $nomeAssociado }}. Confira os modelos autorizados para aquisição.</p>
-        </div>
-        <div class="mt-4 md:mt-0">
-            <span class="bg-blue-100 text-blue-800 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
-                Programa Arma Legal
-            </span>
-        </div>
-    </div>
-    <div class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="flex items-start p-4 bg-slate-100/50 border-l-2 border-slate-300 rounded-r-xl">
-            <i class="fa-solid fa-circle-info text-slate-400 mt-0.5 mr-3 text-sm"></i>
-            <div>
-                <p class="text-[10px] font-black text-slate-500 uppercase tracking-wider">Disponibilidade de Estoque</p>
-                <p class="text-[10px] text-slate-400 font-medium leading-relaxed">
-                    As imagens são ilustrativas. A conclusão do pedido depende da confirmação de disponibilidade pelo fabricante e autorização do comando.
-                </p>
+    <div class="container mx-auto px-4 py-10">
+        
+        <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6 bg-slate-900/60 p-8 rounded-3xl border border-white/5 backdrop-blur-xl shadow-2xl">
+            <div class="flex items-center gap-6">
+                <img src="{{ asset('imagens/logo_faspm.png') }}" class="h-16 md:h-20 drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                <div>
+                    <h1 class="text-3xl md:text-5xl font-black uppercase tracking-tighter italic">Arma <span class="text-blue-500">Legal</span></h1>
+                    <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-[0.2em]">Programa de Aquisição - FASPM</p>
+                </div>
+            </div>
+
+            <div class="w-full md:w-72 bg-slate-950/50 p-4 rounded-2xl border border-white/5">
+                <label class="block text-[9px] font-black text-blue-400 uppercase mb-2 tracking-widest">Filtrar por Marca</label>
+                <div class="relative">
+                    <select x-model="filtroFabricante" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs font-black uppercase outline-none focus:border-blue-600 transition appearance-none cursor-pointer text-white">
+                        <option value="">Todas as Marcas</option>
+                        @foreach($modelos->pluck('fabricante')->unique() as $fab)
+                            <option value="{{ $fab }}">{{ $fab }}</option>
+                        @endforeach
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-4 top-3.5 text-blue-500 pointer-events-none text-xs"></i>
+                </div>
             </div>
         </div>
 
-        <div class="flex items-start p-4 bg-blue-50/50 border-l-2 border-blue-200 rounded-r-xl">
-            <i class="fa-solid fa-scale-balanced text-blue-300 mt-0.5 mr-3 text-sm"></i>
-            <div>
-                <p class="text-[10px] font-black text-blue-900/50 uppercase tracking-wider">Regulamentação Legal</p>
-                <p class="text-[10px] text-slate-400 font-medium leading-relaxed">
-                    A aquisição de arma de fogo é restrita a militares ativos/reservas conforme legislação vigente e normas internas do FASPM.
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-        @foreach($modelos as $modelo)
-        @php
-        // Preço calculado para 1 parcela (0.90% de taxa)
-        $preco1x = $modelo->preco * 1.0090;
-        @endphp
-
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col">
-
-            <div class="relative h-48 bg-slate-100 p-4 flex items-center justify-center group">
-                @if($modelo->imagens->where('principal', true)->first())
-                <img src="{{ asset('storage/' . $modelo->imagens->where('principal', true)->first()->caminho) }}"
-                    class="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-110"
-                    alt="{{ $modelo->nome }}">
-                @else
-                <i class="fa-solid fa-gun text-4xl text-slate-300"></i>
-                @endif
-
-                @if($modelo->codigo)
-                <span class="absolute top-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded text-[9px] font-black text-slate-500 uppercase border border-slate-200">
-                    Cód: {{ $modelo->codigo }}
-                </span>
-                @endif
-            </div>
-
-            <div class="p-5 flex-grow flex flex-col">
-                <span class="text-[10px] font-black text-blue-700 uppercase tracking-widest mb-1">{{ $modelo->fabricante }}</span>
-                <h3 class="text-base font-black text-slate-800 uppercase leading-tight mb-2 h-10 overflow-hidden">
-                    {{ $modelo->nome }}
-                </h3>
-
-                <div class="flex items-center gap-4 mb-4">
-                    <div class="flex flex-col">
-                        <span class="text-[9px] font-bold text-slate-400 uppercase">Calibre</span>
-                        <span class="text-xs font-black text-slate-700">{{ $modelo->calibre }}</span>
-                    </div>
-                    <div class="h-6 w-px bg-slate-200"></div>
-                    <div class="flex flex-col">
-                        <span class="text-[9px] font-bold text-slate-400 uppercase">Capacidade</span>
-                        <span class="text-xs font-black text-slate-700">{{ $modelo->capacidade_tiro }}</span>
-                    </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            @foreach($modelos as $modelo)
+            <div x-show="filtroFabricante === '' || filtroFabricante === '{{ $modelo->fabricante }}'"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 class="bg-slate-900/40 border border-white/5 rounded-[2.5rem] overflow-hidden group hover:border-blue-500/50 hover:bg-slate-900/80 transition-all duration-500 flex flex-col">
+                
+                <div class="h-52 p-8 flex items-center justify-center relative">
+                    <div class="absolute inset-0 bg-radial-gradient from-blue-500/5 to-transparent opacity-50"></div>
+                    @if($modelo->imagens->where('principal', true)->first())
+                        <img src="{{ asset('storage/' . $modelo->imagens->where('principal', true)->first()->caminho) }}" 
+                             class="relative z-10 max-h-full max-w-full object-contain transition-transform duration-700 group-hover:scale-110 drop-shadow-[0_10px_30px_rgba(0,0,0,0.6)]">
+                    @else
+                        <i class="fa-solid fa-gun text-5xl text-slate-800"></i>
+                    @endif
                 </div>
 
-                <div class="mt-auto pt-4 border-t border-slate-100">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase block">A partir de</span>
-                    <div class="flex items-baseline gap-1">
-                        <span class="text-xs font-black text-slate-800 uppercase">R$</span>
-                        <span class="text-2xl font-black text-blue-900 tracking-tighter">
-                            {{ number_format($preco1x, 2, ',', '.') }}
-                        </span>
+                <div class="p-6 pt-0 flex flex-col flex-grow">
+                    <div class="text-center mb-4">
+                        <span class="text-[9px] font-black text-blue-500 uppercase tracking-[0.2em] block mb-1">{{ $modelo->fabricante }}</span>
+                        <h3 class="text-md font-black uppercase tracking-tighter text-slate-100 line-clamp-2 leading-tight">
+                            {{ $modelo->nome }}
+                        </h3>
                     </div>
-                    <p class="text-[9px] text-slate-400 font-bold uppercase mt-1">Valor à vista</p>
-                </div>
 
-                <button @click="arma = {{ $modelo->toJson() }}; openModal = true"
-                    class="w-full mt-4 bg-slate-900 hover:bg-black text-white text-[10px] font-black uppercase py-3 rounded-xl transition tracking-widest">
-                    Ver Detalhes Técnicos
-                </button>
-            </div>
-        </div>
-        @endforeach
-    </div>
+                    <div class="mt-auto space-y-3">
+                        <div class="flex justify-between items-center bg-white/5 rounded-xl px-4 py-2">
+                            <span class="text-[9px] font-bold text-slate-500 uppercase">Investimento</span>
+                            <span class="text-lg font-black text-white tracking-tighter">R$ {{ number_format($modelo->preco, 2, ',', '.') }}</span>
+                        </div>
 
-    <div x-show="openModal"
-        class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-900/95 backdrop-blur-sm"
-        x-transition.opacity
-        x-cloak>
-
-        <div class="bg-white w-full max-w-6xl rounded-3xl shadow-2xl overflow-hidden relative flex flex-col md:flex-row max-h-[95vh]" @click.away="openModal = false">
-
-            <button @click="openModal = false" class="absolute top-5 right-5 z-50 text-slate-400 hover:text-slate-800 transition">
-                <i class="fa-solid fa-circle-xmark text-3xl"></i>
-            </button>
-
-            <div class="md:w-5/12 bg-slate-50 p-6 flex flex-col border-r border-slate-100" x-data="{ activeImg: 0 }">
-                <div class="flex-grow flex items-center justify-center min-h-[300px]">
-                    <template x-for="(img, index) in arma.imagens" :key="index">
-                        <img x-show="activeImg === index"
-                            :src="'/storage/' + img.caminho"
-                            class="max-h-full max-w-full object-contain drop-shadow-2xl"
-                            x-transition:enter="transition ease-out duration-300"
-                            x-transition:enter-start="opacity-0 scale-95">
-                    </template>
-                </div>
-
-                <div class="flex justify-center gap-3 mt-6">
-                    <template x-for="(img, index) in arma.imagens" :key="index">
-                        <button @click="activeImg = index"
-                            :class="activeImg === index ? 'border-blue-900 ring-2 ring-blue-100' : 'border-slate-200 opacity-60 hover:opacity-100'"
-                            class="w-20 h-20 bg-white border-2 rounded-xl p-1 transition overflow-hidden">
-                            <img :src="'/storage/' + img.caminho" class="w-full h-full object-contain">
+                        <button @click="arma = {{ $modelo->toJson() }}; openModal = true" 
+                                class="w-full bg-blue-700 hover:bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus-circle text-xs"></i> Detalhes Técnicos
                         </button>
-                    </template>
+                    </div>
                 </div>
             </div>
+            @endforeach
+        </div>
 
-            <div class="md:w-7/12 p-8 md:p-10 overflow-y-auto bg-white">
-                <div class="mb-6">
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="bg-blue-900 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest" x-text="arma.tipo"></span>
-                        <span class="text-xs font-black text-blue-700 uppercase tracking-widest" x-text="arma.fabricante"></span>
-                    </div>
-                    <h2 class="text-3xl font-black text-slate-800 uppercase tracking-tighter leading-none" x-text="arma.nome"></h2>
-                    <p class="text-slate-400 text-[10px] font-bold mt-2 uppercase">Código de Referência: <span class="text-slate-600" x-text="arma.codigo || 'N/A'"></span></p>
-                </div>
+        <div x-show="openModal" 
+             class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-950/98 backdrop-blur-md"
+             x-transition.opacity x-cloak style="display: none;">
+            
+            <div class="bg-slate-900 w-full max-w-5xl rounded-[2.5rem] shadow-2xl border border-white/10 overflow-hidden relative flex flex-col md:flex-row max-h-[90vh] md:h-auto" @click.away="openModal = false">
+                
+                <button @click="openModal = false" class="absolute top-6 right-6 z-50 text-slate-500 hover:text-white transition-colors bg-black/20 p-2 rounded-full">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
 
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-y-6 gap-x-4 border-t border-b border-slate-100 py-8 mb-8">
-                    <div>
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Calibre</p>
-                        <p class="text-xs font-black text-slate-800 uppercase" x-text="arma.calibre"></p>
-                    </div>
-                    <div>
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Capacidade</p>
-                        <p class="text-xs font-black text-slate-800 uppercase" x-text="arma.capacidade_tiro"></p>
-                    </div>
-                    <div>
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Acabamento</p>
-                        <p class="text-xs font-black text-slate-800 uppercase" x-text="arma.acabamento"></p>
-                    </div>
-                    <div>
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Funcionamento</p>
-                        <p class="text-xs font-black text-slate-800 uppercase" x-text="arma.sistema_funcionamento"></p>
-                    </div>
-                    <div>
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Comprimento Cano</p>
-                        <p class="text-xs font-black text-slate-800 uppercase" x-text="arma.comprimento_cano"></p>
-                    </div>
-                    <div>
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">País de Origem</p>
-                        <p class="text-xs font-black text-slate-800 uppercase" x-text="arma.pais_fabricacao"></p>
-                    </div>
-                    <div>
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Alma do Cano</p>
-                        <p class="text-xs font-black text-slate-800 uppercase" x-text="arma.tipo_alma"></p>
-                    </div>
-                    <div>
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Raias / Sentido</p>
-                        <p class="text-xs font-black text-slate-800 uppercase">
-                            <span x-text="arma.qtd_raias"></span> Raias (<span x-text="arma.sentido_raias"></span>)
-                        </p>
-                    </div>
-                    <div>
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Unidades em Canos</p>
-                        <p class="text-xs font-black text-slate-800 uppercase" x-text="arma.qtd_cano"></p>
-                    </div>
-                </div>
-
-                <div class="flex flex-col sm:flex-row gap-6 mb-8">
-                    <div class="flex-1">
-                        <template x-if="arma.observacao">
-                            <div>
-                                <h4 class="text-[10px] font-black text-slate-400 uppercase mb-2">Informações Adicionais</h4>
-                                <p class="text-xs text-slate-500 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 italic" x-text="arma.observacao"></p>
-                            </div>
+                <div class="md:w-1/2 bg-black/40 p-8 flex flex-col border-r border-white/5" x-data="{ activeImg: 0 }">
+                    <div class="flex-grow flex items-center justify-center relative min-h-[250px] md:min-h-[400px]">
+                        <template x-for="(img, index) in arma.imagens" :key="index">
+                            <img x-show="activeImg === index" :src="'/storage/' + img.caminho" 
+                                 class="relative z-10 max-h-full max-w-full object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.9)]">
                         </template>
                     </div>
-                    <div class="sm:w-1/3 bg-blue-50 p-4 rounded-2xl border border-blue-100 flex flex-col justify-center text-center">
-                        <p class="text-[9px] font-black text-blue-400 uppercase mb-1">Disponíveis</p>
-                        <p class="text-2xl font-black text-blue-900" x-text="arma.quantidade"></p>
-                        <p class="text-[8px] font-bold text-blue-300 uppercase">Estoque FASPM</p>
+                    
+                    <div class="flex justify-center gap-3 mt-6">
+                        <template x-for="(img, index) in arma.imagens" :key="index">
+                            <button @click="activeImg = index" 
+                                    :class="activeImg === index ? 'border-blue-600 scale-105' : 'border-white/10 opacity-30'"
+                                    class="w-16 h-16 bg-slate-800 border-2 rounded-xl p-1.5 transition-all">
+                                <img :src="'/storage/' + img.caminho" class="w-full h-full object-contain">
+                            </button>
+                        </template>
                     </div>
                 </div>
 
-                <div class="bg-slate-900 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-6">
-                    <div>
-                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Investimento à vista</span>
-                        <div class="flex items-baseline gap-1 text-white">
-                            <span class="text-sm font-bold">R$</span>
-                            <span class="text-3xl font-black tracking-tighter" x-text="(arma.preco * 1.0090).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span>
+                <div class="md:w-1/2 p-8 md:p-12 overflow-y-auto custom-scrollbar flex flex-col">
+                    <div class="mb-8">
+                        <span class="text-blue-500 text-[10px] font-black uppercase tracking-[0.3em] mb-2 block" x-text="arma.fabricante"></span>
+                        <h2 class="text-3xl font-black text-white uppercase tracking-tighter leading-tight" x-text="arma.nome"></h2>
+                        <div class="mt-4 inline-flex items-center gap-2 bg-white/5 border border-white/5 px-3 py-1 rounded-full">
+                            <span class="text-[9px] font-black text-slate-500 uppercase">Tipo:</span>
+                            <span class="text-[9px] font-black text-white uppercase" x-text="arma.tipo"></span>
                         </div>
-                        <p class="text-[8px] text-slate-500 font-bold uppercase mt-1">Valor Final</p>
                     </div>
-                    <a :href="'/simulador/' + arma.id"
-                        class="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-2xl font-black uppercase text-xs tracking-widest transition shadow-xl shadow-blue-600/20 text-center">
-                        Ir para o Simulador
-                    </a>
+
+                    <div class="grid grid-cols-2 gap-x-8 gap-y-6 mb-10 border-y border-white/5 py-8">
+                        <div>
+                            <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">Calibre</span>
+                            <span class="text-sm font-black text-white uppercase" x-text="arma.calibre"></span>
+                        </div>
+                        <div>
+                            <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">Capacidade</span>
+                            <span class="text-sm font-black text-white uppercase" x-text="arma.capacidade_tiro"></span>
+                        </div>
+                        <div>
+                            <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">Acabamento</span>
+                            <span class="text-sm font-black text-white uppercase" x-text="arma.acabamento"></span>
+                        </div>
+                        <div>
+                            <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">Comprimento Cano</span>
+                            <span class="text-sm font-black text-white uppercase" x-text="arma.comprimento_cano"></span>
+                        </div>
+                        <div>
+                            <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">Raias</span>
+                            <span class="text-sm font-black text-white uppercase" x-text="arma.qtd_raias + ' (' + arma.sentido_raias + ')'"></span>
+                        </div>
+                        <div>
+                            <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">País</span>
+                            <span class="text-sm font-black text-white uppercase" x-text="arma.pais_fabricacao"></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto pt-6 border-t border-white/5 flex flex-col gap-6">
+                        <div class="flex justify-between items-end">
+                            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Valor do Equipamento</span>
+                            <div class="text-right">
+                                <span class="text-xs font-bold text-slate-400">R$</span>
+                                <span class="text-4xl font-black text-white tracking-tighter" x-text="parseFloat(arma.preco).toLocaleString('pt-BR', {minimumFractionDigits: 2})"></span>
+                            </div>
+                        </div>
+                        <a :href="'/simulador/' + arma.id" 
+                           class="w-full bg-blue-600 hover:bg-blue-500 text-white py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] transition-all shadow-xl shadow-blue-900/30 text-center block">
+                            Iniciar Aquisição
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(59,130,246,0.3); }
+</style>
 @endsection

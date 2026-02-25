@@ -3,54 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Administrativo - Arma Legal</title>
+    <title>Login Administrativo - Arma Legal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" href="{{ asset('imagens/armaLegal.ico') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-900 min-h-screen flex items-center justify-center p-4">
-    
-    <div class="absolute inset-0 z-0 opacity-20">
-        <img src="{{ asset('imagens/bg-policial.jpg') }}" class="w-full h-full object-cover">
-    </div>
+<body class="bg-slate-950 min-h-screen flex items-center justify-center p-4" 
+      style="background-image: linear-gradient(rgba(2, 6, 23, 0.9), rgba(2, 6, 23, 0.9)), url('{{ asset('imagens/banner-militar.jpg') }}'); background-size: cover; background-position: center;">
 
-    <div class="relative z-10 bg-white p-8 md:p-12 rounded-2xl shadow-2xl w-full max-w-md border-b-8 border-blue-900">
-        <div class="text-center mb-10">
-            <img src="{{ asset('imagens/logo_tatica.png') }}" alt="Logo" class="mx-auto h-[120px] mb-6 object-contain">
-            <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tighter">Acesso Administrativo</h1>
-            <p class="text-blue-900 text-xs font-bold uppercase tracking-widest">Gestão de Pedidos e Arsenal</p>
+    <div class="w-full max-w-md">
+        <div class="text-center mb-8">
+            <img src="{{ asset('imagens/logo_faspm.png') }}" alt="FASPM" class="h-24 mx-auto mb-4 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+            <h1 class="text-3xl font-black text-white uppercase tracking-tighter italic">Painel <span class="text-blue-500">Admin</span></h1>
+            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mt-2">Gestão de Arsenal e Requerimentos</p>
         </div>
 
-        @if($errors->any())
-            <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6 text-xs font-bold uppercase">
-                {{ $errors->first() }}
-            </div>
-        @endif
+        <div class="bg-slate-900/80 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/10 shadow-2xl">
+            <form action="{{ route('admin.login.submit') }}" method="POST" class="space-y-6">
+                @csrf
 
-        <form action="{{ route('admin.login.submit') }}" method="POST" class="space-y-6">
-            @csrf
-            <div>
-                <label class="block text-xs font-black text-slate-500 uppercase mb-2">E-mail Institucional</label>
-                <input type="email" name="email" required autofocus
-                       class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-blue-900 outline-none transition font-semibold"
-                       placeholder="exemplo@email.com">
-            </div>
+                @if($errors->any())
+                    <div class="bg-red-500/10 border border-red-500/50 p-4 rounded-xl mb-6">
+                        <ul class="text-xs text-red-500 font-bold uppercase tracking-tight">
+                            @foreach($errors->all() as $error)
+                                <li><i class="fa-solid fa-triangle-exclamation mr-2"></i> {{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
-            <div>
-                <label class="block text-xs font-black text-slate-500 uppercase mb-2">Senha de Acesso</label>
-                <input type="password" name="password" required
-                       class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-blue-900 outline-none transition"
-                       placeholder="••••••••">
-            </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase mb-2 ml-1 tracking-widest">E-mail Institucional</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-envelope absolute left-4 top-4 text-slate-500 text-sm"></i>
+                        <input type="email" name="email" required autofocus 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-2xl py-4 pl-12 pr-4 text-white text-sm focus:border-blue-600 outline-none transition-all placeholder:text-slate-700"
+                               placeholder="admin@faspm.org.br">
+                    </div>
+                </div>
 
-            <button type="submit" 
-                    class="w-full bg-blue-900 hover:bg-blue-800 text-white font-black py-4 rounded-xl shadow-lg transition duration-200 uppercase tracking-widest text-sm">
-                Entrar no Painel
-            </button>
-        </form>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase mb-2 ml-1 tracking-widest">Senha de Acesso</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-4 top-4 text-slate-500 text-sm"></i>
+                        <input type="password" name="password" required 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-2xl py-4 pl-12 pr-4 text-white text-sm focus:border-blue-600 outline-none transition-all placeholder:text-slate-700"
+                               placeholder="••••••••">
+                    </div>
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-blue-900/20 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-3">
+                    Acessar Sistema
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                </button>
+            </form>
+        </div>
 
         <div class="mt-8 text-center">
-            <a href="{{ route('acesso.index') }}" class="text-[10px] font-black text-slate-400 hover:text-blue-900 uppercase tracking-widest transition">
-                &larr; Voltar para Acesso Associado
+            <a href="{{ route('acesso.index') }}" class="text-[10px] font-black text-slate-500 hover:text-blue-400 uppercase tracking-widest transition-colors flex items-center justify-center gap-2">
+                <i class="fa-solid fa-arrow-left-long"></i>
+                Voltar para Acesso Associado
             </a>
         </div>
     </div>

@@ -11,21 +11,21 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Estatísticas para os Cards
+        // 1. Estatísticas para os cards
         $stats = [
-            'total_pedidos'   => PedidoArma::count(),
+            'total_pedidos'    => PedidoArma::count(),
+            'pedidos_novos'    => PedidoArma::where('status_pedido', 'iniciado')->count(),
             'total_associados' => Associado::count(),
-            'pedidos_novos'   => PedidoArma::where('status_pedido', 'iniciado')->count(),
-            // Soma o preço base + 10% (estimativa de volume financeiro parcelado)
-            'volume_total'    => PedidoArma::join('modelos_armas', 'pedidos_armas.modelo_id', '=', 'modelos_armas.id')
-                                            ->sum('modelos_armas.preco') * 1.10
+            // Calcula o volume total (soma dos valores dos pedidos)
+            'volume_total'     => PedidoArma::sum('valor_total') ?? 0,
         ];
 
-        // Últimos 10 pedidos para a tabela
+        // 2. Busca os últimos 10 pedidos com os relacionamentos carregados
+        // Importante: use 'with' para não dar erro de 'property of non-object'
         $pedidosRecentes = PedidoArma::with(['associado', 'modelo'])
-                                    ->orderBy('created_at', 'desc')
-                                    ->take(10)
-                                    ->get();
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
 
         return view('admin.dashboard', compact('stats', 'pedidosRecentes'));
     }
