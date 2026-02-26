@@ -136,6 +136,14 @@
                             <span class="text-sm font-black text-white uppercase" x-text="arma.qtd_raias + ' (' + arma.sentido_raias + ')'"></span>
                         </div>
                         <div>
+                            <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">Qtd Cano</span>
+                            <span class="text-sm font-black text-white uppercase" x-text="arma.qtd_cano"></span>
+                        </div>
+                        <div>
+                            <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">Sistema de Funcionamento</span>
+                            <span class="text-sm font-black text-white uppercase" x-text="arma.sistema_funcionamento"></span>
+                        </div>
+                        <div>
                             <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">País</span>
                             <span class="text-sm font-black text-white uppercase" x-text="arma.pais_fabricacao"></span>
                         </div>

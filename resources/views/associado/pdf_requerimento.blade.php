@@ -50,7 +50,7 @@
 
 <body>
     <div class="header">
-        <img src="{{ public_path('imagens/logo_tatica.png') }}" style="height: 80px;"><br>
+        <img src="{{ public_path('imagens/brasao.png') }}" style="height: 80px;"><br>
         FUNDO DE ASSISTÊNCIA SOCIAL DA PMPA - FASPM<br>
         PROJETO ARMA LEGAL
     </div>

@@ -61,16 +61,15 @@
                             </div>
                             <p class="text-[9px] text-slate-500 font-bold uppercase mt-4 leading-relaxed">
                                 <i class="fa-solid fa-circle-info mr-1 text-blue-500/50"></i>
-                                O desconto em folha está sujeito à margem consignável disponível no momento da averbação junto ao Estado.
+                                O desconto em folha está sujeito à margem consignável disponível (saldo) no momento da entrega do requerimento de compra.
                             </p>
                         </div>
                     </div>
                 </div>
-
                 <div class="bg-blue-900/10 p-6 rounded-2xl border border-blue-500/20 flex items-start gap-5">
                     <i class="fa-solid fa-shield-halved text-blue-500 text-xl mt-1"></i>
                     <p class="text-[10px] text-slate-400 font-bold uppercase leading-relaxed">
-                        Este simulador apresenta valores aproximados com base nas taxas atuais. O valor exato da parcela será confirmado no ato da assinatura do contrato físico e análise do convênio.
+                        Este simulador apresenta os valores base para aquisição, e é composto por valor + taxa administrativa, pode seofrer pequena vaiação. Então no momento da assinatura do contrato confira os dados sempre.
                     </p>
                 </div>
             </div>
@@ -91,15 +90,6 @@
                         </div>
 
                         <div class="pt-8 border-t border-white/5 space-y-4">
-                            <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest">
-                                <span class="text-slate-500">Valor de Tabela:</span>
-                                <span class="text-slate-200" x-text="'R$ ' + precoBase.toLocaleString('pt-BR', {minimumFractionDigits: 2})"></span>
-                            </div>
-                            <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest">
-                                <span class="text-slate-500">Encargos Operacionais:</span>
-                                <span class="text-blue-400" x-text="'R$ ' + (total - precoBase).toLocaleString('pt-BR', {minimumFractionDigits: 2})"></span>
-                            </div>
-                            
                             <div class="flex justify-between items-end pt-6">
                                 <span class="text-[11px] font-black uppercase text-blue-500 tracking-[0.2em]">Total Final</span>
                                 <div class="text-right">

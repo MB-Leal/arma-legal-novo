@@ -13,6 +13,8 @@ class PedidoArma extends Model
         'modelo_id',
         'numero_serie',
         'status_pedido',
+        'parcelas',
+        'valor_total',
         'data_pedido'
     ];
 

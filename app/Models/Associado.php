@@ -20,7 +20,9 @@ class Associado extends Model
         'matricula',
         'posto_graduacao',
         'opm',
-        'status'
+        'status',
+        'celular',
+        'email'
     ];
 
     // Relacionamento: Um associado tem um endereço

@@ -167,18 +167,25 @@ public function finalizarPedido(Request $request)
     $pedido_id = DB::transaction(function () use ($request) {
         $associado = Associado::findOrFail(session('associado_id'));
         
-        // Atualiza Associado
-        $associado->update($request->only(['rg_militar', 'posto_graduacao', 'opm', 'email', 'celular']));
+        // 1. Atualiza dados do Associado (Garante e-mail e celular)
+        $associado->update($request->only([
+            'rg_militar', 'posto_graduacao', 'opm', 'email', 'celular', 'status'
+        ]));
 
-        // Atualiza Endereço
-        $associado->endereco()->update($request->only(['cep', 'logradouro', 'numero', 'bairro', 'cidade', 'estado', 'complemento']));
+        // 2. Atualiza Endereço (Limpa o CEP)
+        $dadosEndereco = $request->only(['cep', 'logradouro', 'numero', 'bairro', 'cidade', 'estado', 'complemento']);
+        $dadosEndereco['cep'] = preg_replace('/\D/', '', $dadosEndereco['cep']);
+        $associado->endereco()->update($dadosEndereco);
 
-        // Cria o Pedido (Ajustado para bater com sua migration: 'parcelas')
+        // 3. Limpa o valor_total (Converte "10.629,00" ou "10629" para float)
+        $valorTotal = str_replace(',', '.', str_replace('.', '', $request->valor_total));
+
+        // 4. Cria o Pedido (Usa 'parcelas' conforme sua migration)
         $pedido = PedidoArma::create([
             'associado_id' => $associado->id,
             'modelo_id'    => $request->modelo_id,
-            'valor_total'  => $request->valor_total,
-            'parcelas'     => $request->parcelas, // Nome da coluna conforme sua migration
+            'valor_total'  => $valorTotal,
+            'parcelas'     => $request->parcelas, 
             'status_pedido'=> 'iniciado',
             'data_pedido'  => now(),
         ]);
