@@ -31,6 +31,13 @@ Route::middleware(['auth.associado'])->group(function () {
     // Dentro do grupo middleware 'auth.associado'
     Route::post('/conferir-dados', [PedidoArmaController::class, 'conferirDados'])->name('associado.conferir');
     Route::post('/processar-pedido', [PedidoArmaController::class, 'finalizarPedido'])->name('associado.processar');
+
+    // Páginas Institucionais
+    Route::get('/termos-de-uso', [App\Http\Controllers\PaginaController::class, 'termos'])->name('termos');
+    Route::get('/politica-de-privacidade', [App\Http\Controllers\PaginaController::class, 'politica'])->name('politica');
+    Route::get('/suporte', [App\Http\Controllers\PaginaController::class, 'suporte'])->name('suporte');
+    
+    Route::get('/processo-dal', [App\Http\Controllers\PaginaController::class, 'dalInfo'])->name('dal.info');
 });
 
 // --- ÁREA ADMINISTRATIVA ---

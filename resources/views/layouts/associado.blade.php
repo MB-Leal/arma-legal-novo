@@ -9,9 +9,9 @@
     <link rel="icon" href="{{ asset('imagens/armaLegal.ico') }}">
 
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -20,8 +20,11 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+
         /* Previne o scroll quando o modal estiver aberto */
-        [x-cloak] { display: none !important; }
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -73,18 +76,39 @@
         @yield('content')
     </main>
 
-    <footer class="bg-white border-t border-slate-200 py-6 mt-12">
-        <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-slate-500 text-xs font-bold uppercase tracking-widest">
-            <div class="mb-4 md:mb-0">
-                &copy; {{ date('Y') }} FASPM - Fundo de Assistência Social da PMPA
+    <footer class="bg-white border-t border-slate-200 py-10 mt-12">
+    <div class="container mx-auto px-4">
+        
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 pb-8 border-b border-slate-100 gap-4 text-center md:text-left">
+            
+            <div class="max-w-md">
+                <p class="text-[15px] font-bold text-slate-500 uppercase tracking-widest leading-loose">
+                    Informações para o processo de Autorização para aquisição de armas de fogo da DAL 
+                    <a href="{{ route('dal.info') }}" class="text-blue-600 hover:text-blue-800 underline transition-all ml-1">clicando aqui</a>
+                </p>
             </div>
-            <div class="flex space-x-6">
-                <a href="#" class="hover:text-blue-900">Termos de Uso</a>
-                <a href="#" class="hover:text-blue-900">Política de Privacidade (LGPD)</a>
-                <a href="#" class="hover:text-blue-900">Suporte</a>
+
+            <div class="max-w-md md:text-right">
+                <p class="text-[15px] font-bold text-slate-500 uppercase tracking-widest leading-loose">
+                    <a href="{{ asset('imagens/etapas.png') }}" target="_blank" class="text-blue-600 hover:text-blue-800 underline transition-all mr-1">CLIQUE AQUI</a> 
+                    para ver o passo a passo do Processo de Financiamento do FASPM.
+                </p>
             </div>
         </div>
-    </footer>
+
+        <div class="flex flex-col md:flex-row justify-between items-center text-slate-500 text-xs font-bold uppercase tracking-widest">
+            <div class="mb-4 md:mb-0 text-[10px]">
+                &copy; {{ date('Y') }} FASPM - Fundo de Assistência Social da PMPA
+            </div>
+            <div class="flex gap-6">
+                <a href="{{ route('termos') }}" class="text-[10px] font-black text-slate-400 uppercase hover:text-blue-900 transition">Termos de Uso</a>
+                <a href="{{ route('politica') }}" class="text-[10px] font-black text-slate-400 uppercase hover:text-blue-900 transition">Política de Privacidade (LGPD)</a>
+                <a href="{{ route('suporte') }}" class="text-[10px] font-black text-slate-400 uppercase hover:text-blue-900 transition">Suporte</a>
+            </div>
+        </div>
+
+    </div>
+</footer>
 
 </body>
 
