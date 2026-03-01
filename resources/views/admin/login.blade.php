@@ -12,9 +12,9 @@
 
     <div class="w-full max-w-md">
         <div class="text-center mb-8">
-            <img src="{{ asset('imagens/logo_faspm.png') }}" alt="FASPM" class="h-24 mx-auto mb-4 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+            <img src="{{ asset('imagens/logo_tatica.png') }}" alt="FASPM" class="h-48 mx-auto mb-4 drop-shadow-[0_0_5px_rgba(59,130,246,0.5)]">
             <h1 class="text-3xl font-black text-white uppercase tracking-tighter italic">Painel <span class="text-blue-500">Admin</span></h1>
-            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mt-2">Gestão de Arsenal e Requerimentos</p>
+            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mt-2">Gestão de Armas e Requerimentos</p>
         </div>
 
         <div class="bg-slate-900/80 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/10 shadow-2xl">
@@ -32,7 +32,7 @@
                 @endif
 
                 <div>
-                    <label class="block text-[10px] font-black text-slate-500 uppercase mb-2 ml-1 tracking-widest">E-mail Institucional</label>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase mb-2 ml-1 tracking-widest">Digite seu E-mail</label>
                     <div class="relative">
                         <i class="fa-solid fa-envelope absolute left-4 top-4 text-slate-500 text-sm"></i>
                         <input type="email" name="email" required autofocus 
@@ -42,7 +42,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-[10px] font-black text-slate-500 uppercase mb-2 ml-1 tracking-widest">Senha de Acesso</label>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase mb-2 ml-1 tracking-widest">Digite sua Senha de Acesso</label>
                     <div class="relative">
                         <i class="fa-solid fa-lock absolute left-4 top-4 text-slate-500 text-sm"></i>
                         <input type="password" name="password" required 

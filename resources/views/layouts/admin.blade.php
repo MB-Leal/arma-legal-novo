@@ -40,36 +40,36 @@
                     <i class="fa-solid fa-users mr-3 text-slate-400 group-hover:text-white"></i>
                     <span class="text-sm font-bold uppercase">Gestão de Associados</span>
                 </a>
-                <div class="pt-4 mt-4 border-t border-slate-800">
-                    <a href="{{ route('associado.catalogo') }}" target="_blank"
-                        class="flex items-center p-3 bg-blue-700 hover:bg-blue-600 rounded-lg transition group shadow-lg">
-                        <i class="fa-solid fa-eye mr-3 text-white"></i>
-                        <span class="text-sm font-bold uppercase text-white">Ver Catálogo</span>
-                    </a>
-                    <p class="text-[9px] text-slate-500 mt-2 px-3 font-bold uppercase tracking-tighter">
-                        Visualizar como associado
-                    </p>
-                </div>
+                <a href="{{ route('associado.catalogo') }}" class="flex items-center p-3 {{ request()->routeIs('associados.*') ? 'bg-blue-900' : 'hover:bg-slate-800' }} rounded-lg transition group">
+                    <i class="fa-solid fa-eye mr-3 text-slate-400 group-hover:text-white"></i>
+                    <span class="text-sm font-bold uppercase">Ver Catálogo</span>
+                </a>                
+                <a href="{{ route('admin.logs') }}"
+                    class="flex items-center p-3 {{ request()->routeIs('admin.logs') ? 'bg-blue-900 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} rounded-lg transition group">
+                    <i class="fa-solid fa-shield-halved mr-3 {{ request()->routeIs('admin.logs') ? 'text-white' : 'text-slate-400 group-hover:text-white' }}"></i>
+                    <span class="text-sm font-bold uppercase">Logs de Acesso</span>
+                </a>
             </nav>
 
             <div class="p-4 border-t border-slate-800">
                 <form action="{{ route('admin.logout') }}" method="POST">
-    @csrf
-    <button type="submit" class="w-full flex items-center p-3 text-red-400 hover:bg-red-900/20 rounded-lg transition font-bold text-xs uppercase">
-        <i class="fa-solid fa-right-from-bracket mr-3"></i> Sair
-    </button>
-</form>
+                    @csrf
+                    <button type="submit" class="w-full flex items-center p-3 text-red-400 hover:bg-red-900/20 rounded-lg transition font-bold text-xs uppercase">
+                        <i class="fa-solid fa-right-from-bracket mr-3"></i> Sair
+                    </button>
+                </form>
             </div>
-        </aside></aside> <div class="flex-1 flex flex-col"> @if(isset($novosPedidosCount) && $novosPedidosCount > 0)
+        </aside>
+        <div class="flex-1 flex flex-col"> @if(isset($novosPedidosCount) && $novosPedidosCount > 0)
             <div class="bg-amber-400 p-2 text-center shadow-sm">
                 <a href="{{ route('pedidos.index') }}" class="text-[10px] font-black text-amber-900 uppercase tracking-widest animate-pulse inline-block w-full">
                     <i class="fa-solid fa-bell mr-2"></i>
                     Atenção: Existem {{ $novosPedidosCount }} novos requerimentos aguardando análise!
                 </a>
             </div>
-            @endif     
+            @endif
 
-                    <header class="bg-white shadow-sm h-16 flex items-center justify-between px-8 border-b border-slate-200">
+            <header class="bg-white shadow-sm h-16 flex items-center justify-between px-8 border-b border-slate-200">
                 <div class="flex items-center text-slate-500">
                     <i class="fa-solid fa-bars md:hidden mr-4 cursor-pointer"></i>
                     <h2 class="text-sm font-black uppercase tracking-tighter text-slate-800">Projeto Arma Legal</h2>

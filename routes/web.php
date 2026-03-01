@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\ModeloArmaController;
 use App\Http\Controllers\Admin\PedidoController as AdminPedidoController;
 use App\Http\Controllers\Admin\LoginController as AdminAuthController;
 use App\Http\Controllers\Admin\AssociadoController;
+use App\Http\Controllers\Admin\LogController;
 
 // --- ROTAS PÚBLICAS ---
 Route::get('/', [AuthController::class, 'showAcesso'])->name('acesso.index');
@@ -56,4 +57,6 @@ Route::middleware(['auth', 'is.admin'])->prefix('admin')->group(function () {
     Route::post('/pedidos/{id}/aprovar', [AdminPedidoController::class, 'aprovar'])->name('admin.pedidos.aprovar');
     Route::post('/pedidos/{id}/arquivar', [AdminPedidoController::class, 'arquivar'])->name('admin.pedidos.arquivar');
     Route::post('/pedidos/{id}/atualizar-serie', [AdminPedidoController::class, 'updateSerie'])->name('admin.pedidos.updateSerie');
+
+    Route::get('admin/logs', [LogController::class, 'index'])->name('admin.logs');
 });

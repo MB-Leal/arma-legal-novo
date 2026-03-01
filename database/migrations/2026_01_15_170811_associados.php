@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('nome_completo');
             $table->string('cpf', 11)->unique();
-            $table->string('rg_militar')->unique();
+            $table->string('rg_militar')->unique()->nullable();
             $table->string('matricula')->unique();
-            $table->string('posto_graduacao');
-            $table->string('opm');
-            $table->enum('status', ['ativo', 'inativo', 'reserva'])->default('ativo');
+            $table->string('posto_graduacao')->nullable();
+            $table->string('opm')->nullable();
+            $table->enum('status', ['ativo', 'veterano'])->default('ativo')->nullable();
             $table->string('email')->nullable();
         $table->string('celular')->nullable();
             $table->timestamps();

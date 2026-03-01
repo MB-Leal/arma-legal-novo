@@ -31,14 +31,21 @@ class PedidoArmaController extends Controller
 
 
     public function meusPedidos()
-    {
-        $pedidos = PedidoArma::with('modelo')
-            ->where('associado_id', session('associado_id'))
-            ->orderBy('created_at', 'desc')
-            ->get();
+{
+    // 1. Recuperar o ID do associado que está logado na sessão
+    $associadoId = session('associado_id');
 
-        return view('associado.pedidos', compact('pedidos'));
-    }
+    // 2. Buscar os pedidos (usamos get() para trazer a lista)
+    $pedidos = PedidoArma::with(['associado' => function($q) {
+        $q->withTrashed();
+    }, 'modelo'])
+    ->where('associado_id', $associadoId)
+    ->orderBy('created_at', 'desc') // Adicionei para mostrar o mais recente primeiro
+    ->get(); // Alterado de first() para get() para funcionar com o compact('pedidos')
+
+    // 3. Retornar a view com a variável correta (pedidos no plural)
+    return view('associado.pedidos', compact('pedidos'));
+}
     /**
      * Gera o PDF do Requerimento preenchido
      */

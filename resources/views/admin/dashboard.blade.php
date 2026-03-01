@@ -31,12 +31,21 @@
         </div>
 
         <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-            <div class="flex justify-between items-start mb-4">
-                <div class="p-2 bg-green-50 text-green-600 rounded-lg"><i class="fa-solid fa-hand-holding-dollar"></i></div>
-            </div>
-            <span class="text-[10px] font-black text-slate-400 uppercase">Volume (Est. 10%)</span>
-            <div class="text-xl font-black text-slate-800 leading-none mt-1">R$ {{ number_format($stats['volume_total'] ?? 0, 2, ',', '.') }}</div>
+    <div class="flex justify-between items-start mb-4">
+        {{-- Ícone alterado para Arma (ou use fa-boxes-stacked para estoque) --}}
+        <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+            <i class="fa-solid fa-gun"></i>
         </div>
+    </div>
+    
+    {{-- Etiqueta alterada para Estoque --}}
+    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Estoque Disponível</span>
+    
+    {{-- Dado alterado para a contagem de unidades --}}
+    <div class="text-xl font-black text-slate-800 leading-none mt-1">
+        {{ $stats['total_estoque'] ?? 0 }} <span class="text-xs text-slate-400 font-bold uppercase">Armas</span>
+    </div>
+</div>
 
         <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
             <div class="flex justify-between items-start mb-4">

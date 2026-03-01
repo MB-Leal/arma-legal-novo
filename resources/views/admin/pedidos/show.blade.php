@@ -12,13 +12,31 @@
             <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
                 <h3 class="text-sm font-black text-slate-400 uppercase mb-6 border-b pb-2">Dados do Associado</h3>
                 <div class="grid grid-cols-2 gap-y-4 text-sm">
-                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Nome Completo</p><p class="font-bold text-slate-800 uppercase">{{ $pedido->associado->nome_completo }}</p></div>
-                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">CPF</p><p class="font-bold text-slate-800">{{ $pedido->associado->cpf }}</p></div>
-                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Matrícula</p><p class="font-bold text-slate-800">{{ $pedido->associado->matricula }}</p></div>
-                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Posto/OPM</p><p class="font-bold text-slate-800 uppercase">{{ $pedido->associado->posto_graduacao }} / {{ $pedido->associado->opm }}</p></div>
-                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Telefone / Celular</p><p class="font-bold text-slate-800">{{ $pedido->associado->celular }}</p></div>
-        
-        <div><p class="text-[10px] font-bold text-slate-400 uppercase">E-mail</p><p class="font-bold text-slate-800">{{ $pedido->associado->email }}</p></div>
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Nome Completo</p>
+                        <p class="font-bold text-slate-800 uppercase">{{ $pedido->associado->nome_completo }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">CPF</p>
+                        <p class="font-bold text-slate-800">{{ $pedido->associado->cpf }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Matrícula</p>
+                        <p class="font-bold text-slate-800">{{ $pedido->associado->matricula }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Posto/OPM</p>
+                        <p class="font-bold text-slate-800 uppercase">{{ $pedido->associado->posto_graduacao }} / {{ $pedido->associado->opm }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Telefone / Celular</p>
+                        <p class="font-bold text-slate-800">{{ $pedido->associado->celular }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">E-mail</p>
+                        <p class="font-bold text-slate-800">{{ $pedido->associado->email }}</p>
+                    </div>
                 </div>
 
                 <h3 class="text-sm font-black text-slate-400 uppercase mt-10 mb-6 border-b pb-2">Endereço de Entrega/Residência</h3>
@@ -39,42 +57,57 @@
                 <h3 class="text-xs font-black text-blue-300 uppercase mb-4 tracking-widest">Arma Solicitada</h3>
                 <p class="text-xl font-black uppercase leading-tight mb-2">{{ $pedido->modelo->nome }}</p>
                 <p class="text-xs font-bold text-blue-200 uppercase mb-6">{{ $pedido->modelo->fabricante }} - {{ $pedido->modelo->calibre }}</p>
-                
-                <div class="border-t border-white/10 pt-4 flex justify-between items-center">
-    <span class="text-[10px] font-black uppercase tracking-widest text-blue-300/80">
-        Preço Base (Catálogo)
-    </span>
-    <span class="font-bold text-white">
-        R$ {{ number_format($pedido->modelo->preco, 2, ',', '.') }}
-    </span>
-</div>
 
-<div class="border-t border-blue-500/30 pt-4 flex justify-between items-center">
-    <span class="text-xs font-black uppercase tracking-tighter text-blue-200">
-        Condições da venda
-    </span>
-    <div class="text-right">
-        <span class="block text-lg font-black text-white italic leading-none">
-            {{ $pedido->parcelas }}x de R$ {{ number_format($pedido->valor_parcela, 2, ',', '.') }}
-        </span>
-        <span class="text-[15px] font-black text-blue-400 uppercase tracking-widest">
-            Total: R$ {{ number_format($pedido->valor_total, 2, ',', '.') }}
-        </span>
-    </div>
-</div>
+                <div class="border-t border-white/10 pt-4 flex justify-between items-center">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-blue-300/80">
+                        Preço Base (Catálogo)
+                    </span>
+                    <span class="font-bold text-white">
+                        R$ {{ number_format($pedido->modelo->preco, 2, ',', '.') }}
+                    </span>
+                </div>
+
+                <div class="border-t border-blue-500/30 pt-4 flex justify-between items-center">
+                    <span class="text-xs font-black uppercase tracking-tighter text-blue-200">
+                        Condições da venda
+                    </span>
+                    <div class="text-right">
+                        <span class="block text-lg font-black text-white italic leading-none">
+                            {{ $pedido->parcelas }}x de R$ {{ number_format($pedido->valor_parcela, 2, ',', '.') }}
+                        </span>
+                        <span class="text-[15px] font-black text-blue-400 uppercase tracking-widest">
+                            Total: R$ {{ number_format($pedido->valor_total, 2, ',', '.') }}
+                        </span>
+                    </div>
+                </div>
             </div>
 
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                 <label class="block text-[10px] font-black text-slate-400 uppercase mb-4">Alterar Status do Pedido</label>
+
+                {{-- Exibe erro de estoque se houver --}}
+                @if($errors->has('erro'))
+                <div class="mb-4 p-3 bg-red-100 text-red-700 text-[10px] font-bold uppercase rounded-lg">
+                    {{ $errors->first('erro') }}
+                </div>
+                @endif
+
                 <form action="{{ route('pedidos.update', $pedido->id) }}" method="POST" class="space-y-4">
                     @csrf @method('PUT')
                     <select name="status_pedido" class="w-full p-3 bg-slate-50 border rounded-lg font-bold text-xs uppercase outline-none focus:ring-2 focus:ring-blue-900">
                         <option value="iniciado" {{ $pedido->status_pedido == 'iniciado' ? 'selected' : '' }}>Iniciado</option>
-                        <option value="pago" {{ $pedido->status_pedido == 'pago' ? 'selected' : '' }}>Pago / Confirmado</option>
+                        <option value="lançado em folha" {{ $pedido->status_pedido == 'lançado em folha' ? 'selected' : '' }}>Recebido / lançado em folha</option>
+                        <option value="aguardando sigma" {{ $pedido->status_pedido == 'aguardando sigma' ? 'selected' : '' }}>Aguardando Sigma</option>
                         <option value="concluido" {{ $pedido->status_pedido == 'concluido' ? 'selected' : '' }}>Concluído</option>
                         <option value="cancelado" {{ $pedido->status_pedido == 'cancelado' ? 'selected' : '' }}>Cancelado</option>
                     </select>
-                    <button type="submit" class="w-full bg-slate-800 text-white font-black py-3 rounded-lg text-[10px] uppercase hover:bg-black transition">Atualizar Status</button>
+                    <p class="text-[9px] text-slate-400 font-bold uppercase italic">
+                        * Ao selecionar "Lançado em folha", 1 unidade será baixada do estoque automaticamente.
+                    </p>
+
+                    <button type="submit" class="w-full bg-slate-800 text-white font-black py-3 rounded-lg text-[10px] uppercase hover:bg-black transition">
+                        Atualizar Status
+                    </button>
                 </form>
             </div>
         </div>

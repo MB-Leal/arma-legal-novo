@@ -34,62 +34,65 @@ class AssociadoController extends Controller
         return view('admin.associados.create');
     }
 
-    public function store(Request $request)
+public function store(Request $request)
 {
-    // 1. Validação Completa de todos os campos do formulário
+    // 1. Validação: Apenas Nome, CPF e Matrícula são obrigatórios
     $validatedData = $request->validate([
         'nome_completo'   => 'required|string|max:255',
         'cpf'             => 'required|string|unique:associados,cpf',
         'matricula'       => 'required|string|unique:associados,matricula',
-        'rg_militar'      => 'required|string',
-        'posto_graduacao' => 'required|string',
-        'opm'             => 'required|string',
-        'email'           => 'required|email|unique:associados,email',
-        'celular'         => 'required|string',
-        'status'          => 'required|in:ativo,inativo',
         
-        // Dados do Endereço
-        'cep'             => 'required|string',
-        'logradouro'      => 'required|string',
-        'numero'          => 'required|string',
-        'bairro'          => 'required|string',
-        'cidade'          => 'required|string',
-        'estado'          => 'required|string|max:2',
+        // Todos os outros campos agora são nullable (opcionais)
+        'rg_militar'      => 'nullable|string',
+        'posto_graduacao' => 'nullable|string',
+        'opm'             => 'nullable|string',
+        'email'           => 'nullable|email|unique:associados,email',
+        'celular'         => 'nullable|string',
+        'status'          => 'nullable|in:ativo,inativo',
+        
+        // Dados do Endereço também opcionais
+        'cep'             => 'nullable|string',
+        'logradouro'      => 'nullable|string',
+        'numero'          => 'nullable|string',
+        'bairro'          => 'nullable|string',
+        'cidade'          => 'nullable|string',
+        'estado'          => 'nullable|string|max:2',
         'complemento'     => 'nullable|string'
     ]);
 
     try {
         DB::transaction(function () use ($request) {
-            // 2. Cria o Associado com os campos validados
+            // 2. Cria o Associado (converte para maiúsculo apenas se houver valor)
             $associado = Associado::create([
                 'nome_completo'   => mb_strtoupper($request->nome_completo),
                 'cpf'             => $request->cpf,
                 'matricula'       => $request->matricula,
                 'rg_militar'      => $request->rg_militar,
                 'posto_graduacao' => $request->posto_graduacao,
-                'opm'             => $request->opm,
+                'opm'             => $request->opm ? mb_strtoupper($request->opm) : null,
                 'email'           => $request->email,
                 'celular'         => $request->celular,
-                'status'          => $request->status,
+                'status'          => $request->status ?? 'ativo', // Padrão ativo se vazio
             ]);
 
-            // 3. Cria o Endereço vinculado (limpando o CEP)
+            // 3. Cria o registro de Endereço vinculado
+            $cepLimpo = $request->cep ? preg_replace('/\D/', '', $request->cep) : null;
+
             $associado->endereco()->create([
-                'cep'         => preg_replace('/\D/', '', $request->cep),
-                'logradouro'  => mb_strtoupper($request->logradouro),
+                'cep'         => $cepLimpo,
+                'logradouro'  => $request->logradouro ? mb_strtoupper($request->logradouro) : null,
                 'numero'      => $request->numero,
-                'bairro'      => mb_strtoupper($request->bairro),
-                'cidade'      => mb_strtoupper($request->cidade),
-                'estado'      => mb_strtoupper($request->estado),
-                'complemento' => mb_strtoupper($request->complemento),
+                'bairro'      => $request->bairro ? mb_strtoupper($request->bairro) : null,
+                'cidade'      => $request->cidade ? mb_strtoupper($request->cidade) : null,
+                'estado'      => $request->estado ? mb_strtoupper($request->estado) : null,
+                'complemento' => $request->complemento ? mb_strtoupper($request->complemento) : null,
             ]);
         });
 
         return redirect()->route('associados.index')->with('success', 'Associado cadastrado com sucesso!');
 
     } catch (\Exception $e) {
-        // Se der qualquer erro de banco, ele volta com a mensagem de erro técnica
-        return redirect()->back()->withInput()->withErrors('Erro no banco de dados: ' . $e->getMessage());
+        return redirect()->back()->withInput()->withErrors('Erro ao salvar no banco: ' . $e->getMessage());
     }
 }
 
@@ -103,52 +106,66 @@ class AssociadoController extends Controller
 {
     $associado = Associado::findOrFail($id);
     
-    // 1. Validação dos dados (Garante que CPF e MF sejam únicos, ignorando o ID atual)
+    // 1. Validação Flexível: Apenas Nome, CPF e Matrícula são obrigatórios
+    // Nota: O e-mail também ganhou a regra de ignorar o ID atual para permitir salvar sem mudar
     $validatedData = $request->validate([
         'nome_completo'   => 'required|string|max:255',
         'cpf'             => 'required|string|unique:associados,cpf,' . $id,
         'matricula'       => 'required|string|unique:associados,matricula,' . $id,
-        'rg_militar'      => 'required|string',
-        'posto_graduacao' => 'required|string',
-        'opm'             => 'required|string',
-        'email'           => 'required|email',
-        'celular'         => 'required|string',
-        'status'          => 'required|in:ativo,inativo',
         
-        // Validação do endereço
-        'cep'             => 'required|string',
-        'logradouro'      => 'required|string',
-        'numero'          => 'required|string',
-        'bairro'          => 'required|string',
-        'cidade'          => 'required|string',
-        'estado'          => 'required|string|max:2',
+        // Campos Opcionais (nullable)
+        'rg_militar'      => 'nullable|string',
+        'posto_graduacao' => 'nullable|string',
+        'opm'             => 'nullable|string',
+        'email'           => 'nullable|email|unique:associados,email,' . $id,
+        'celular'         => 'nullable|string',
+        'status'          => 'nullable|in:ativo,inativo',
+        
+        // Endereço Opcional
+        'cep'             => 'nullable|string',
+        'logradouro'      => 'nullable|string',
+        'numero'          => 'nullable|string',
+        'bairro'          => 'nullable|string',
+        'cidade'          => 'nullable|string',
+        'estado'          => 'nullable|string|max:2',
+        'complemento'     => 'nullable|string'
     ]);
 
-    DB::transaction(function () use ($request, $associado) {
-        // 2. Atualiza os dados do Associado (Agora incluindo CPF e Matrícula)
-        $associado->update($request->only([
-            'nome_completo', 
-            'cpf', 
-            'matricula', 
-            'rg_militar', 
-            'posto_graduacao', 
-            'opm', 
-            'email', 
-            'celular', 
-            'status'
-        ]));
+    try {
+        DB::transaction(function () use ($request, $associado) {
+            
+            // 2. Atualiza dados do Associado (Maiúsculo apenas onde há texto)
+            $associado->update([
+                'nome_completo'   => mb_strtoupper($request->nome_completo),
+                'cpf'             => $request->cpf,
+                'matricula'       => $request->matricula,
+                'rg_militar'      => $request->rg_militar,
+                'posto_graduacao' => $request->posto_graduacao,
+                'opm'             => $request->opm ? mb_strtoupper($request->opm) : null,
+                'email'           => $request->email,
+                'celular'         => $request->celular,
+                'status'          => $request->status ?? $associado->status,
+            ]);
 
-        // 3. Limpeza do CEP antes de salvar
-        $dadosEndereco = $request->only([
-            'cep', 'logradouro', 'numero', 'bairro', 'cidade', 'estado', 'complemento'
-        ]);
-        $dadosEndereco['cep'] = preg_replace('/\D/', '', $dadosEndereco['cep']);
+            // 3. Prepara e atualiza o endereço
+            $cepLimpo = $request->cep ? preg_replace('/\D/', '', $request->cep) : null;
 
-        // 4. Atualiza o endereço relacionado
-        $associado->endereco()->update($dadosEndereco);
-    });
+            $associado->endereco()->update([
+                'cep'         => $cepLimpo,
+                'logradouro'  => $request->logradouro ? mb_strtoupper($request->logradouro) : null,
+                'numero'      => $request->numero,
+                'bairro'      => $request->bairro ? mb_strtoupper($request->bairro) : null,
+                'cidade'      => $request->cidade ? mb_strtoupper($request->cidade) : null,
+                'estado'      => $request->estado ? mb_strtoupper($request->estado) : null,
+                'complemento' => $request->complemento ? mb_strtoupper($request->complemento) : null,
+            ]);
+        });
 
-    return redirect()->route('associados.index')->with('success', 'Cadastro do associado atualizado com sucesso!');
+        return redirect()->route('associados.index')->with('success', 'Cadastro do associado atualizado com sucesso!');
+
+    } catch (\Exception $e) {
+        return redirect()->back()->withInput()->withErrors('Erro ao atualizar: ' . $e->getMessage());
+    }
 }
 
     public function destroy($id)

@@ -26,8 +26,8 @@
                         {{ $pedido->created_at->format('d/m/Y') }}
                     </td>
                     <td class="px-6 py-4">
-                        <span class="block text-sm font-bold text-blue-900 uppercase">{{ $pedido->modelo->tipo }} - {{ $pedido->modelo->nome }}</span>
-                        <span class="text-xs text-slate-400 uppercase">{{ $pedido->modelo->fabricante }}</span>
+                        <span class="block text-sm font-bold text-blue-900 uppercase">{{ $pedido->modelo->tipo ?? 'Tipo excluído' }} - {{ $pedido->modelo->nome ?? 'Modelo não identificado' }}</span>
+                        <span class="text-xs text-slate-400 uppercase">{{ $pedido->modelo->fabricante ?? 'N/A' }}</span>
                     </td>
                     <td class="px-6 py-4">
                         @php

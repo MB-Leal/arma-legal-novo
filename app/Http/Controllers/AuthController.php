@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use App\Models\AcessoLog;
 
 class AuthController extends Controller
 {
@@ -27,27 +28,62 @@ class AuthController extends Controller
     public function validarAssociado(Request $request)
     {
         // 1. Tratamento dos inputs (Limpeza)
-        $nomeBusca = Str::upper(trim($request->nome_completo));
-        $cpfBusca = preg_replace('/[^0-9]/', '', $request->cpf); // Remove pontos e traços
+        $nomeDigitado = Str::upper(trim($request->nome_completo));
+        $cpfBusca = preg_replace('/[^0-9]/', '', $request->cpf);
 
-        // 2. Busca no banco de dados
-        $associado = Associado::where('cpf', $cpfBusca)
-            ->where('nome_completo', $nomeBusca)
+        // 2. Busca o associado INCLUINDO os excluídos para sabermos quem está tentando entrar
+        $associado = Associado::withTrashed()
+            ->where('cpf', $cpfBusca)
+            ->where('nome_completo', $nomeDigitado)
             ->first();
 
-        // 3. Verificação de sucesso
+        // Preparação dos dados básicos do LOG
+        $dadosLog = [
+            'cpf'          => $cpfBusca,
+            'ip_address'   => $request->ip(),
+            'user_agent'   => $request->userAgent(),
+            'data_acesso'  => now(), // Horário de Belém já configurado!
+        ];
+
+        // 3. Verificação de existência e status
+        
+        // CASO A: Não existe no banco de dados
         if (!$associado) {
+            AcessoLog::create(array_merge($dadosLog, [
+                'nome'         => $nomeDigitado . " (TENTATIVA)",
+                'resultado'    => 'nao_cadastrado',
+                'eh_associado' => false
+            ]));
+
             return back()->withErrors([
                 'erro' => 'Os dados informados não foram encontrados em nossa base de associados.'
-            ])->withInput(); // Retorna mantendo o que foi digitado
+            ])->withInput();
         }
 
-        // 4. Criação da Sessão (Segurança)
-        // Guardamos o ID e o Nome para usar no sistema sem precisar consultar o banco toda hora
+        // CASO B: Existe, mas foi EXCLUÍDO (Soft Delete)
+        if ($associado->trashed()) {
+            AcessoLog::create(array_merge($dadosLog, [
+                'nome'         => $associado->nome_completo,
+                'resultado'    => 'inativo',
+                'eh_associado' => true
+            ]));
+
+            return back()->withErrors([
+                'erro' => 'Seu cadastro está inativo no sistema. Procure a administração.'
+            ])->withInput();
+        }
+
+        // CASO C: Sucesso (Existe e está ativo)
+        AcessoLog::create(array_merge($dadosLog, [
+            'nome'         => $associado->nome_completo,
+            'resultado'    => 'sucesso',
+            'eh_associado' => true
+        ]));
+
+        // 4. Criação da Sessão
         Session::put('associado_id', $associado->id);
         Session::put('associado_nome', $associado->nome_completo);
 
-        // 5. Redirecionamento para o Catálogo (View que vamos criar)
         return redirect()->route('associado.catalogo');
     }
 

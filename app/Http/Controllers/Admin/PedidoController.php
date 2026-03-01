@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PedidoArma;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PedidoController extends Controller
 {
@@ -13,8 +14,11 @@ class PedidoController extends Controller
      */
     public function index()
     {
-        $pedidos = PedidoArma::with(['associado', 'modelo'])
-            ->where('status_pedido', '!=', 'arquivado') // Esconde os arquivados
+        $pedidos = PedidoArma::has('modelo')
+            ->with(['associado' => function ($q) {
+                $q->withTrashed();
+            }, 'modelo'])
+            ->where('status_pedido', '!=', 'arquivado')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
@@ -66,15 +70,37 @@ class PedidoController extends Controller
      * Atualiza o status do pedido (O que o Adriano/Marcos mais farão)
      */
     public function update(Request $request, $id)
-    {
-        $pedido = PedidoArma::findOrFail($id);
+{
+    $pedido = PedidoArma::findOrFail($id);
+    $statusAntigo = $pedido->status_pedido;
+    $novoStatus = $request->status_pedido;
 
-        $pedido->update([
-            'status_pedido' => $request->status_pedido,
-        ]);
+    try {
+        DB::transaction(function () use ($pedido, $statusAntigo, $novoStatus) {
+            
+            // LÓGICA DE ESTOQUE:
+            // Só subtrai se o novo status for 'lançado em folha' AND o antigo NÃO era
+            if ($novoStatus === 'lançado em folha' && $statusAntigo !== 'lançado em folha') {
+                $modelo = $pedido->modelo;
 
-        return back()->with('success', 'Status do pedido atualizado com sucesso!');
+                if ($modelo && $modelo->quantidade > 0) {
+                    $modelo->decrement('quantidade', 1);
+                } else {
+                    // Lança uma exceção para interromper a transação se não houver estoque
+                    throw new \Exception("Estoque insuficiente para o modelo: " . ($modelo->nome ?? 'Desconhecido'));
+                }
+            }           
+
+            $pedido->status_pedido = $novoStatus;
+            $pedido->save();
+        });
+
+        return redirect()->back()->with('success', 'Status atualizado e estoque baixado com sucesso!');
+
+    } catch (\Exception $e) {
+        return redirect()->back()->withErrors(['erro' => $e->getMessage()]);
     }
+}
 
     public function arquivar(Request $request, $id)
     {

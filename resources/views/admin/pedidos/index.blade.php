@@ -31,11 +31,11 @@
                         <div class="text-[9px] text-slate-400 font-bold">{{ $pedido->created_at->format('d/m/Y H:i') }}</div>
                     </td>
                     <td class="p-4">
-                        <div class="text-xs font-black text-slate-700 uppercase leading-none">{{ $pedido->associado->nome_completo }}</div>
-                        <div class="text-[9px] text-slate-400 font-bold uppercase mt-1">Matrícula: {{ $pedido->associado->matricula }}</div>
+                        <div class="text-xs font-black text-slate-700 uppercase leading-none">{{ $pedido->associado->nome_completo ?? 'Militar não encontrado' }}</div>
+                        <div class="text-[9px] text-slate-400 font-bold uppercase mt-1">Matrícula: {{ $pedido->associado->matricula ?? '---' }}</div>
                     </td>
                     <td class="p-4">
-                        <div class="text-xs font-bold text-slate-700 uppercase leading-none">{{ $pedido->modelo->nome }}</div>
+                        <div class="text-xs font-bold text-slate-700 uppercase leading-none">{{ $pedido->modelo->nome ?? 'Modelo Removido do Catálogo' }}</div>
                         <div class="text-[10px] text-blue-600 font-black mt-1">R$ {{ number_format($pedido->valor_total, 2, ',', '.') }}</div>
                     </td>
                     <td class="p-4 text-center">
