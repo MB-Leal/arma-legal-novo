@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ModeloArmaController extends Controller
 {
-    // Listar vitrine de armas para o associado
+    
     public function index()
     {
         $modelos = ModeloArma::with('imagens')->get();

@@ -8,6 +8,7 @@
     <link rel="icon" href="{{ asset('imagens/arma-de-fogo.ico') }}">
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -53,25 +54,22 @@
 
             <div class="p-4 border-t border-slate-800">
                 <form action="{{ route('admin.logout') }}" method="POST">
-                    @csrf
-                    <button class="w-full flex items-center p-3 text-red-400 hover:bg-red-900/20 rounded-lg transition font-bold text-xs uppercase">
-                        <i class="fa-solid fa-right-from-bracket mr-3"></i> Sair
-                    </button>
-                </form>
+    @csrf
+    <button type="submit" class="w-full flex items-center p-3 text-red-400 hover:bg-red-900/20 rounded-lg transition font-bold text-xs uppercase">
+        <i class="fa-solid fa-right-from-bracket mr-3"></i> Sair
+    </button>
+</form>
             </div>
-        </aside>
+        </aside></aside> <div class="flex-1 flex flex-col"> @if(isset($novosPedidosCount) && $novosPedidosCount > 0)
+            <div class="bg-amber-400 p-2 text-center shadow-sm">
+                <a href="{{ route('pedidos.index') }}" class="text-[10px] font-black text-amber-900 uppercase tracking-widest animate-pulse inline-block w-full">
+                    <i class="fa-solid fa-bell mr-2"></i>
+                    Atenção: Existem {{ $novosPedidosCount }} novos requerimentos aguardando análise!
+                </a>
+            </div>
+            @endif     
 
-        @if($novosPedidosCount > 0)
-<div class="bg-amber-400 p-2 text-center">
-    <a href="{{ route('pedidos.index') }}" class="text-[10px] font-black text-amber-900 uppercase tracking-widest animate-pulse">
-        <i class="fa-solid fa-bell mr-2"></i>
-        Atenção: Existem {{ $novosPedidosCount }} novos requerimentos aguardando análise!
-    </a>
-</div>
-@endif
-
-        <div class="flex-1 flex flex-col">
-            <header class="bg-white shadow-sm h-16 flex items-center justify-between px-8 border-b border-slate-200">
+                    <header class="bg-white shadow-sm h-16 flex items-center justify-between px-8 border-b border-slate-200">
                 <div class="flex items-center text-slate-500">
                     <i class="fa-solid fa-bars md:hidden mr-4 cursor-pointer"></i>
                     <h2 class="text-sm font-black uppercase tracking-tighter text-slate-800">Projeto Arma Legal</h2>

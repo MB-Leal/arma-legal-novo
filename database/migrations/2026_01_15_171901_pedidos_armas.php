@@ -17,13 +17,15 @@ return new class extends Migration
             $table->foreignId('modelo_id')->constrained('modelos_armas');
             $table->string('numero_serie')->nullable();
             $table->integer('parcelas')->default(1);
+            $table->decimal('valor_parcela', 10, 2)->nullable();
             $table->decimal('valor_total', 10, 2)->nullable();
             $table->enum('status_pedido', [
                 'iniciado',
-                'pago',
-                'em_fabricacao',
+                'lançado em folha',
+                'aguardando sigma',
                 'concluido',
-                'cancelado'
+                'cancelado',
+                'arquivado'
             ])->default('iniciado');
             $table->date('data_pedido');
             $table->text('observacao_admin')->nullable();

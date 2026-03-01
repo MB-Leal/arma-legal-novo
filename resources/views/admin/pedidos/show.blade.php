@@ -16,6 +16,9 @@
                     <div><p class="text-[10px] font-bold text-slate-400 uppercase">CPF</p><p class="font-bold text-slate-800">{{ $pedido->associado->cpf }}</p></div>
                     <div><p class="text-[10px] font-bold text-slate-400 uppercase">Matrícula</p><p class="font-bold text-slate-800">{{ $pedido->associado->matricula }}</p></div>
                     <div><p class="text-[10px] font-bold text-slate-400 uppercase">Posto/OPM</p><p class="font-bold text-slate-800 uppercase">{{ $pedido->associado->posto_graduacao }} / {{ $pedido->associado->opm }}</p></div>
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Telefone / Celular</p><p class="font-bold text-slate-800">{{ $pedido->associado->celular }}</p></div>
+        
+        <div><p class="text-[10px] font-bold text-slate-400 uppercase">E-mail</p><p class="font-bold text-slate-800">{{ $pedido->associado->email }}</p></div>
                 </div>
 
                 <h3 class="text-sm font-black text-slate-400 uppercase mt-10 mb-6 border-b pb-2">Endereço de Entrega/Residência</h3>
@@ -37,10 +40,28 @@
                 <p class="text-xl font-black uppercase leading-tight mb-2">{{ $pedido->modelo->nome }}</p>
                 <p class="text-xs font-bold text-blue-200 uppercase mb-6">{{ $pedido->modelo->fabricante }} - {{ $pedido->modelo->calibre }}</p>
                 
-                <div class="border-t border-blue-800 pt-4 flex justify-between items-center">
-                    <span class="text-xs font-bold uppercase">Preço Base</span>
-                    <span class="font-black">R$ {{ number_format($pedido->modelo->preco, 2, ',', '.') }}</span>
-                </div>
+                <div class="border-t border-white/10 pt-4 flex justify-between items-center">
+    <span class="text-[10px] font-black uppercase tracking-widest text-blue-300/80">
+        Preço Base (Catálogo)
+    </span>
+    <span class="font-bold text-white">
+        R$ {{ number_format($pedido->modelo->preco, 2, ',', '.') }}
+    </span>
+</div>
+
+<div class="border-t border-blue-500/30 pt-4 flex justify-between items-center">
+    <span class="text-xs font-black uppercase tracking-tighter text-blue-200">
+        Condições da venda
+    </span>
+    <div class="text-right">
+        <span class="block text-lg font-black text-white italic leading-none">
+            {{ $pedido->parcelas }}x de R$ {{ number_format($pedido->valor_parcela, 2, ',', '.') }}
+        </span>
+        <span class="text-[15px] font-black text-blue-400 uppercase tracking-widest">
+            Total: R$ {{ number_format($pedido->valor_total, 2, ',', '.') }}
+        </span>
+    </div>
+</div>
             </div>
 
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">

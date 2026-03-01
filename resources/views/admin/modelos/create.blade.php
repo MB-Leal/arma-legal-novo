@@ -224,5 +224,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+document.querySelector('form').addEventListener('submit', function() {
+    const precoInput = document.querySelector('input[name="preco"]');
+});
 </script>
 @endsection

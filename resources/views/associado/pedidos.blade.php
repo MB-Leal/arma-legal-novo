@@ -14,7 +14,7 @@
             <thead class="bg-slate-50 border-b border-slate-200">
                 <tr>
                     <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Data</th>
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Modelo</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Arma</th>
                     <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Status</th>
                     <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Nº de Série</th>
                 </tr>
@@ -26,7 +26,7 @@
                         {{ $pedido->created_at->format('d/m/Y') }}
                     </td>
                     <td class="px-6 py-4">
-                        <span class="block text-sm font-bold text-blue-900 uppercase">{{ $pedido->modelo->nome }}</span>
+                        <span class="block text-sm font-bold text-blue-900 uppercase">{{ $pedido->modelo->tipo }} - {{ $pedido->modelo->nome }}</span>
                         <span class="text-xs text-slate-400 uppercase">{{ $pedido->modelo->fabricante }}</span>
                     </td>
                     <td class="px-6 py-4">

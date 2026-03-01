@@ -65,10 +65,10 @@
                 @forelse($pedidosRecentes as $pedido)
                 <tr class="hover:bg-slate-50 transition">
                     <td class="px-6 py-4">
-                        <div class="text-sm font-bold text-slate-800 uppercase leading-none">{{ $pedido->associado->nome_completo }}</div>
+                        <div class="text-sm font-bold text-slate-800 uppercase leading-none">{{ $pedido->associado->nome_completo ?? 'Associado não encontrado' }}</div>
                         <div class="text-[10px] text-slate-400 font-bold uppercase mt-1">CPF: {{ $pedido->associado->cpf }}</div>
                     </td>
-                    <td class="px-6 py-4 text-xs font-bold text-blue-900 uppercase">{{ $pedido->modelo->nome }}</td>
+                    <td class="px-6 py-4 text-xs font-bold text-blue-900 uppercase">{{ $pedido->modelo->nome ?? 'Modelo Excluído' }}</td>
                     <td class="px-6 py-4 text-[10px]">
                         <span class="px-2 py-1 bg-blue-100 text-blue-700 font-black rounded uppercase">
                             {{ str_replace('_', ' ', $pedido->status_pedido) }}

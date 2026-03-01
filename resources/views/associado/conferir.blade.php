@@ -17,6 +17,7 @@
             <input type="hidden" name="modelo_id" value="{{ $modelo->id }}">
             <input type="hidden" name="parcelas" value="{{ $parcelas }}">
             <input type="hidden" name="valor_total" value="{{ $valor_total }}">
+            <input type="hidden" name="valor_parcela" value="{{ $valor_parcela }}">
 
             <div class="bg-blue-600/10 border border-blue-500/20 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-center gap-6 backdrop-blur-sm">
                 <div class="flex items-center gap-4">
@@ -29,9 +30,9 @@
                     </div>
                 </div>
                 <div class="text-center md:text-right">
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Total em {{ $parcelas }}x</p>
-                    <p class="text-3xl font-black text-white italic">R$ {{ number_format($valor_total, 2, ',', '.') }}</p>
-                </div>
+        <p class="text-lg font-black text-slate-400 uppercase tracking-widest"> {{ $parcelas }}x de R$ {{ number_format($valor_parcela, 2, ',', '.') }}</p>
+        <p class="text-3xl font-black text-white italic">R$ {{ number_format($valor_total, 2, ',', '.') }}</p>
+    </div>
             </div>
 
             <div class="bg-slate-900/80 border border-white/5 p-8 rounded-[2.5rem] backdrop-blur-md shadow-2xl">
@@ -65,8 +66,8 @@
                         <label class="text-[9px] font-black text-blue-400 uppercase mb-2 block">Situação (Status)</label>
                         <select name="status" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-white font-bold text-sm focus:border-blue-500 outline-none">
                             <option value="ativo" {{ $associado->status == 'ativo' ? 'selected' : '' }}>ATIVO</option>
-                            <option value="reserva" {{ $associado->status == 'reserva' ? 'selected' : '' }}>RESERVA</option>
-                            <option value="inativo" {{ $associado->status == 'inativo' ? 'selected' : '' }}>INATIVO</option>
+                            <option value="reserva" {{ $associado->status == 'reserva' ? 'selected' : '' }}>VETEREANO</option>
+                            
                         </select>
                     </div>
 

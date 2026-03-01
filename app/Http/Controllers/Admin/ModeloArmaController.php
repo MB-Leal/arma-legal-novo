@@ -13,14 +13,23 @@ class ModeloArmaController extends Controller
     /**
      * Lista os modelos cadastrados
      */
-    public function index(): View
-    {
-        // O orderBy() é um método do Eloquent. 
-        // Se o erro persistir no editor, ignore-o ou use ModeloArma::query()->orderBy...
-        $modelos = ModeloArma::orderBy('nome')->get();
+    public function index(Request $request): View
+{
+    // 1. Pegamos a lista de todos os fabricantes únicos para preencher o Select
+    $fabricantes = ModeloArma::distinct()->pluck('fabricante')->sort();
 
-        return view('admin.modelos.index', compact('modelos'));
+    // 2. Iniciamos a query dos modelos
+    $query = ModeloArma::with('imagens')->orderBy('nome');
+
+    // 3. Se houver filtro de fabricante na URL, aplicamos
+    if ($request->has('fabricante') && $request->fabricante != '') {
+        $query->where('fabricante', $request->fabricante);
     }
+
+    $modelos = $query->get();
+
+    return view('admin.modelos.index', compact('modelos', 'fabricantes'));
+}
 
     /**
      * Tela de criação
@@ -35,15 +44,24 @@ class ModeloArmaController extends Controller
      */
     public function store(Request $request)
 {
-    // 1. Limpeza do preço (Troca vírgula por ponto para o banco entender)
-    $input = $request->all();
-
+    // 1. Limpeza do preço (Trata formatos 5.045,00 ou 5045.00)
     if ($request->has('preco')) {
-        $precoLimpo = str_replace(',', '.', str_replace('.', '', $request->preco));
+        $precoRaw = $request->preco;
+        
+        // Se houver vírgula, tratamos como formato BR (Ex: 1.234,56)
+        if (strpos($precoRaw, ',') !== false) {
+            $precoLimpo = str_replace('.', '', $precoRaw); // Remove ponto de milhar
+            $precoLimpo = str_replace(',', '.', $precoLimpo); // Troca vírgula decimal por ponto
+        } else {
+            // Se não houver vírgula, apenas garantimos que seja um valor numérico limpo
+            $precoLimpo = $precoRaw;
+        }
+        
+        // Injeta o valor limpo de volta no request para a validação 'numeric' funcionar
         $request->merge(['preco' => $precoLimpo]);
     }
 
-    // 2. Validação completa de todos os campos da migration
+    // 2. Validação completa
     $validatedData = $request->validate([
         'nome' => 'required|string|max:255',
         'fabricante' => 'required|string',
@@ -62,9 +80,8 @@ class ModeloArmaController extends Controller
         'fotos.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,bmp,svg|max:5120'
     ]);
 
-    // 3. Gravação usando os dados limpos
-    // Garantimos que o preço salvo é o formatado (ponto decimal)
-    $validatedData['preco'] = $input['preco'];
+    // 3. Preparação dos dados para gravação
+    // Usamos o 'preco' que já foi validado e está limpo no $validatedData
     $validatedData['nome'] = mb_strtoupper($validatedData['nome']);
 
     $modelo = ModeloArma::create($validatedData);
@@ -96,21 +113,63 @@ class ModeloArmaController extends Controller
      * Atualiza os dados no banco
      */
     public function update(Request $request, $id): RedirectResponse
-    {
-        $modelo = ModeloArma::findOrFail($id);
-
-        $dados = $request->validate([
-            'nome'       => 'required|string|max:255',
-            'fabricante' => 'required|string',
-            'preco'      => 'required|numeric',
-        ]);
-
-        $dados['nome'] = mb_strtoupper($dados['nome']);
-
-        $modelo->update($dados);
-
-        return redirect()->route('modelos.index')->with('success', 'Modelo atualizado!');
+{
+    // 1. Limpeza do preço (mesma lógica do store para garantir o formato decimal)
+    if ($request->has('preco')) {
+        $precoRaw = $request->preco;
+        if (strpos($precoRaw, ',') !== false) {
+            $precoLimpo = str_replace('.', '', $precoRaw);
+            $precoLimpo = str_replace(',', '.', $precoLimpo);
+        } else {
+            $precoLimpo = $precoRaw;
+        }
+        $request->merge(['preco' => $precoLimpo]);
     }
+
+    $modelo = ModeloArma::findOrFail($id);
+
+    // 2. Validação COMPLETA (incluindo quantidade e todos os campos técnicos)
+    $validatedData = $request->validate([
+        'nome' => 'required|string|max:255',
+        'fabricante' => 'required|string',
+        'tipo' => 'required|string',
+        'calibre' => 'required|string',
+        'acabamento' => 'required|string',
+        'capacidade_tiro' => 'required|string',
+        'sistema_funcionamento' => 'required|string',
+        'comprimento_cano' => 'required|string',
+        'tipo_alma' => 'required|string',
+        'qtd_raias' => 'required|integer',
+        'sentido_raias' => 'required|string',
+        'pais_fabricacao' => 'required|string',
+        'preco' => 'required|numeric',
+        'quantidade' => 'required|integer', // AQUI ESTAVA O ERRO: Faltava validar para o Laravel aceitar
+        'fotos.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,bmp,svg|max:5120'
+    ]);
+
+    // 3. Formatação adicional
+    $validatedData['nome'] = mb_strtoupper($validatedData['nome']);
+
+    // 4. Atualização no Banco de Dados
+    $modelo->update($validatedData);
+
+    // 5. Gestão de Novas Imagens (se o gestor subiu fotos novas)
+    if ($request->hasFile('fotos')) {
+        foreach ($request->file('fotos') as $foto) {
+            $path = $foto->store('modelos', 'public');
+            
+            // Se o modelo não tinha nenhuma imagem antes, a primeira nova vira a principal
+            $isFirst = $modelo->imagens()->count() === 0;
+            
+            $modelo->imagens()->create([
+                'caminho' => $path,
+                'principal' => $isFirst
+            ]);
+        }
+    }
+
+    return redirect()->route('modelos.index')->with('success', 'Modelo atualizado com sucesso!');
+}
 
     /**
      * Remove um modelo

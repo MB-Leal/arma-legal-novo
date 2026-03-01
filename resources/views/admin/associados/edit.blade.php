@@ -22,7 +22,7 @@
                     <i class="fa-solid fa-user-pen mr-2"></i> Informações do Militar
                 </h3>
             </div>
-            
+
             <div class="p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="md:col-span-2">
                     <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Nome Completo</label>
@@ -31,7 +31,10 @@
 
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">CPF</label>
-                    <input type="text" name="cpf" value="{{ old('cpf', $associado->cpf) }}" maxlength="11" required class="w-full p-3 bg-slate-100 border-2 border-slate-200 rounded-xl outline-none font-bold text-sm text-slate-500 cursor-not-allowed" readonly>
+                    <input type="text" name="cpf"
+                        value="{{ old('cpf', $associado->cpf) }}"
+                        required
+                        class="w-full p-3 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-blue-900 outline-none font-bold text-sm">
                 </div>
 
                 <div>
@@ -40,8 +43,11 @@
                 </div>
 
                 <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Matrícula</label>
-                    <input type="text" name="matricula" value="{{ old('matricula', $associado->matricula) }}" required class="w-full p-3 bg-slate-100 border-2 border-slate-200 rounded-xl outline-none font-bold text-sm text-slate-500 cursor-not-allowed" readonly>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Matrícula (MF)</label>
+                    <input type="text" name="matricula"
+                        value="{{ old('matricula', $associado->matricula) }}"
+                        required
+                        class="w-full p-3 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-blue-900 outline-none font-bold text-sm">
                 </div>
 
                 <div>
@@ -56,7 +62,7 @@
                     <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Posto / Graduação</label>
                     <select name="posto_graduacao" required class="w-full p-3 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-blue-900 outline-none font-bold text-sm">
                         @foreach(['AL CFP PM/BM', 'SD PM/BM', 'CB PM/BM', '3º SGT PM/BM', '2º SGT PM/BM', '1º SGT PM/BM', 'SUB TEN PM/BM', 'CAD PM/BM', 'ASP PM/BM', '2º TEN PM/BM', '1º TEN PM/BM', 'CAP PM/BM', 'MAJ PM/BM', 'TEN CEL PM/BM', 'CEL PM/BM'] as $posto)
-                            <option value="{{ $posto }}" {{ $associado->posto_graduacao == $posto ? 'selected' : '' }}>{{ $posto }}</option>
+                        <option value="{{ $posto }}" {{ $associado->posto_graduacao == $posto ? 'selected' : '' }}>{{ $posto }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -83,12 +89,12 @@
                     <i class="fa-solid fa-house-chimney-window mr-2"></i> Endereço Atualizado
                 </h3>
             </div>
-            
+
             <div class="p-8 grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">CEP</label>
                     <input type="text" name="cep" id="cep" value="{{ old('cep', $associado->endereco->cep ?? '') }}" maxlength="8" required
-                           class="w-full p-3 bg-blue-50 border-2 border-blue-100 rounded-xl focus:border-blue-900 outline-none font-black text-blue-900 text-sm">
+                        class="w-full p-3 bg-blue-50 border-2 border-blue-100 rounded-xl focus:border-blue-900 outline-none font-black text-blue-900 text-sm">
                 </div>
 
                 <div class="md:col-span-2">
@@ -136,7 +142,7 @@
         let cep = this.value.replace(/\D/g, '');
         if (cep !== "") {
             let validacep = /^[0-9]{8}$/;
-            if(validacep.test(cep)) {
+            if (validacep.test(cep)) {
                 fetch(`https://viacep.com.br/ws/${cep}/json/`)
                     .then(response => response.json())
                     .then(dados => {

@@ -1,6 +1,16 @@
 @extends('layouts.admin')
 
 @section('content')
+@if ($errors->any())
+<div class="mb-6 p-4 bg-red-100 border-l-4 border-red-500 rounded-r-xl shadow-sm">
+    <h4 class="text-red-800 font-black uppercase text-xs mb-2">Atenção! Verifique os erros abaixo:</h4>
+    <ul class="list-disc list-inside text-red-700 text-[10px] font-bold uppercase">
+        @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
 <div class="max-w-5xl mx-auto px-4 pb-12">
     <div class="mb-8">
         <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tighter">Novo Associado</h1>

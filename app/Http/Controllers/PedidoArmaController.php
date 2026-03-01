@@ -19,11 +19,17 @@ class PedidoArmaController extends Controller
     public function vitrine()
     {
         $nomeAssociado = Session::get('associado_nome');
-        $modelos = ModeloArma::with('imagens')->get();
+
+        // FILTRO: Só traz para o catálogo armas com estoque disponível
+        $modelos = ModeloArma::with('imagens')
+            ->where('quantidade', '>', 0)
+            ->orderBy('nome')
+            ->get();
+
         return view('associado.catalogo', compact('modelos', 'nomeAssociado'));
     }
 
-   
+
     public function meusPedidos()
     {
         $pedidos = PedidoArma::with('modelo')
@@ -75,22 +81,22 @@ class PedidoArmaController extends Controller
     }
 
 
-public function gerarRequerimento($id)
-{
-    $pedido = PedidoArma::with(['associado.endereco', 'modelo'])->findOrFail($id);
+    public function gerarRequerimento($id)
+    {
+        $pedido = PedidoArma::with(['associado.endereco', 'modelo'])->findOrFail($id);
 
-    // Verifica se o pedido pertence ao associado logado (segurança)
-    if ($pedido->associado_id != session('associado_id')) {
-        abort(403);
+        // Verifica se o pedido pertence ao associado logado (segurança)
+        if ($pedido->associado_id != session('associado_id')) {
+            abort(403);
+        }
+
+        $pdf = Pdf::loadView('pdf.requerimento', compact('pedido'));
+
+        // Nome do arquivo: Requerimento_NOME_DATA.pdf
+        $filename = 'Requerimento_' . str_replace(' ', '_', $pedido->associado->nome_completo) . '.pdf';
+
+        return $pdf->stream($filename);
     }
-
-    $pdf = Pdf::loadView('pdf.requerimento', compact('pedido'));
-    
-    // Nome do arquivo: Requerimento_NOME_DATA.pdf
-    $filename = 'Requerimento_' . str_replace(' ', '_', $pedido->associado->nome_completo) . '.pdf';
-
-    return $pdf->stream($filename);
-}
     // 2. Exibe os detalhes de uma arma específica
     public function showDetalhes($id)
     {
@@ -99,7 +105,7 @@ public function gerarRequerimento($id)
     }
 
     // 3. Abre o simulador para a arma escolhida
-    
+
 
     // 4. Etapa de confirmação/preenchimento de endereço (Onde entra o ViaCEP)
     public function confirmarDados($modelo_id, Request $request)
@@ -130,70 +136,80 @@ public function gerarRequerimento($id)
 
         return view('associado.sucesso', compact('pedido'));
     }
-public function showSimulador($id)
-{
-    $modelo = ModeloArma::with('imagens')->findOrFail($id);
+    public function showSimulador($id)
+    {
+        $modelo = ModeloArma::with('imagens')->findOrFail($id);
 
-    // Agora lendo da tabela taxas_parcelamento via Model
-    $taxas = TaxaParcelamento::orderBy('parcela')->pluck('percentual', 'parcela');
+        // Agora lendo da tabela taxas_parcelamento via Model
+        $taxas = TaxaParcelamento::orderBy('parcela')->pluck('percentual', 'parcela');
 
-    // Fallback caso a tabela esteja vazia
-    if ($taxas->isEmpty()) {
-        for ($i = 1; $i <= 24; $i++) {
-            $taxas->put($i, $i * 0.0090); 
+        // Fallback caso a tabela esteja vazia
+        if ($taxas->isEmpty()) {
+            for ($i = 1; $i <= 24; $i++) {
+                $taxas->put($i, $i * 0.0090);
+            }
         }
+
+        return view('associado.simulador', compact('modelo', 'taxas'));
     }
 
-    return view('associado.simulador', compact('modelo', 'taxas'));
-}
+    public function conferirDados(Request $request)
+    {
+        $modelo = ModeloArma::with('imagens')->findOrFail($request->modelo_id);
+        $parcelas = $request->parcelas;
+        $associado = Associado::with('endereco')->findOrFail(session('associado_id'));
 
-public function conferirDados(Request $request) 
-{
-    $modelo = ModeloArma::with('imagens')->findOrFail($request->modelo_id);
-    $parcelas = $request->parcelas;
-    $associado = Associado::with('endereco')->findOrFail(session('associado_id'));
-    
-    // Busca o percentual na tabela taxas_parcelamento
-    $taxaObj = TaxaParcelamento::where('parcela', $parcelas)->first();
-    
-    $percentual = $taxaObj ? $taxaObj->percentual : ($parcelas * 0.0090);
-    $valor_total = $modelo->preco * (1 + $percentual);
+        $taxaObj = TaxaParcelamento::where('parcela', $parcelas)->first();
+        $percentual = $taxaObj ? $taxaObj->percentual : ($parcelas * 0.0090);
+        $valor_total = $modelo->preco * (1 + $percentual);
 
-    return view('associado.conferir', compact('modelo', 'parcelas', 'associado', 'valor_total'));
-}
+        // --- CORREÇÃO: Definindo a variável ANTES de passar para a view ---
+        $valor_parcela = $valor_total / $parcelas;
 
-public function finalizarPedido(Request $request)
-{
-    $pedido_id = DB::transaction(function () use ($request) {
-        $associado = Associado::findOrFail(session('associado_id'));
-        
-        // 1. Atualiza dados do Associado (Garante e-mail e celular)
-        $associado->update($request->only([
-            'rg_militar', 'posto_graduacao', 'opm', 'email', 'celular', 'status'
-        ]));
+        return view('associado.conferir', compact('modelo', 'parcelas', 'valor_parcela', 'associado', 'valor_total'));
+    }
 
-        // 2. Atualiza Endereço (Limpa o CEP)
-        $dadosEndereco = $request->only(['cep', 'logradouro', 'numero', 'bairro', 'cidade', 'estado', 'complemento']);
-        $dadosEndereco['cep'] = preg_replace('/\D/', '', $dadosEndereco['cep']);
-        $associado->endereco()->update($dadosEndereco);
+    public function finalizarPedido(Request $request)
+    {
+        $pedido_id = DB::transaction(function () use ($request) {
+            $associado = Associado::findOrFail(session('associado_id'));
 
-        // 3. Limpa o valor_total (Converte "10.629,00" ou "10629" para float)
-        $valorTotal = str_replace(',', '.', str_replace('.', '', $request->valor_total));
+            // 1. Atualiza Associado
+            $associado->update($request->only(['rg_militar', 'posto_graduacao', 'opm', 'email', 'celular', 'status']));
 
-        // 4. Cria o Pedido (Usa 'parcelas' conforme sua migration)
-        $pedido = PedidoArma::create([
-            'associado_id' => $associado->id,
-            'modelo_id'    => $request->modelo_id,
-            'valor_total'  => $valorTotal,
-            'parcelas'     => $request->parcelas, 
-            'status_pedido'=> 'iniciado',
-            'data_pedido'  => now(),
-        ]);
+            // 2. Atualiza Endereço
+            $dadosEndereco = $request->only(['cep', 'logradouro', 'numero', 'bairro', 'cidade', 'estado', 'complemento']);
+            $dadosEndereco['cep'] = preg_replace('/\D/', '', $dadosEndereco['cep']);
+            $associado->endereco()->update($dadosEndereco);
 
-        return $pedido->id;
-    });
+            // --- CORREÇÃO DA LIMPEZA DOS VALORES ---
+            $limparMoeda = function ($valor) {
+                if (empty($valor)) return 0;
+                // Se tem vírgula, é formato BR (1.234,56). Removemos o ponto e trocamos a vírgula por ponto.
+                if (strpos($valor, ',') !== false) {
+                    return (float) str_replace(',', '.', str_replace('.', '', $valor));
+                }
+                // Se não tem vírgula, já deve estar no formato decimal (5314.5)
+                return (float) $valor;
+            };
 
-    return redirect()->route('associado.pdf', $pedido_id);
-}
+            $vTotal = $limparMoeda($request->valor_total);
+            $vParcela = $limparMoeda($request->valor_parcela);
 
+            // 4. Cria o Pedido com os valores corrigidos
+            $pedido = PedidoArma::create([
+                'associado_id' => $associado->id,
+                'modelo_id'    => $request->modelo_id,
+                'valor_total'  => $vTotal,
+                'valor_parcela' => $vParcela,
+                'parcelas'     => $request->parcelas,
+                'status_pedido' => 'iniciado',
+                'data_pedido'  => now(),
+            ]);
+
+            return $pedido->id;
+        });
+
+        return redirect()->route('associado.pdf', $pedido_id);
+    }
 }

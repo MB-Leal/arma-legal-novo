@@ -11,10 +11,10 @@ class PedidoController extends Controller
     /**
      * Lista todos os pedidos com filtros
      */
-        public function index()
+    public function index()
     {
-        // Listagem cronológica e paginada
         $pedidos = PedidoArma::with(['associado', 'modelo'])
+            ->where('status_pedido', '!=', 'arquivado') // Esconde os arquivados
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
@@ -25,7 +25,7 @@ class PedidoController extends Controller
     {
         DB::transaction(function () use ($id) {
             $pedido = PedidoArma::findOrFail($id);
-            
+
             if ($pedido->status_pedido !== 'iniciado') {
                 return back()->with('erro', 'Este pedido já foi processado.');
             }
@@ -43,18 +43,6 @@ class PedidoController extends Controller
         });
 
         return back()->with('success', 'Pedido aprovado e estoque atualizado!');
-    }
-
-    public function arquivar(Request $request, $id)
-    {
-        $pedido = PedidoArma::findOrFail($id);
-        
-        $pedido->update([
-            'status_pedido' => 'concluido', // Usamos concluído como arquivado
-            'observacao_admin' => $request->observacao_admin
-        ]);
-
-        return back()->with('success', 'Pedido arquivado com sucesso.');
     }
 
     public function destroy($id)
@@ -80,11 +68,30 @@ class PedidoController extends Controller
     public function update(Request $request, $id)
     {
         $pedido = PedidoArma::findOrFail($id);
-        
+
         $pedido->update([
             'status_pedido' => $request->status_pedido,
         ]);
 
         return back()->with('success', 'Status do pedido atualizado com sucesso!');
+    }
+
+    public function arquivar(Request $request, $id)
+    {
+        // 1. Validação da justificativa
+        $request->validate([
+            'observacao_admin' => 'required|string|min:5'
+        ]);
+
+        // 2. Busca o pedido
+        $pedido = \App\Models\PedidoArma::findOrFail($id);
+
+        // 3. Atualiza o status e salva a observação
+        $pedido->update([
+            'status_pedido' => 'arquivado', // Ou 'arquivado', conforme sua regra de negócio
+            'observacao_admin' => $request->observacao_admin
+        ]);
+
+        return redirect()->route('pedidos.index')->with('success', 'Requerimento arquivado com sucesso!');
     }
 }

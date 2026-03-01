@@ -49,6 +49,7 @@ Route::middleware(['auth', 'is.admin'])->prefix('admin')->group(function () {
 
     // Gestão de Militares (Associados)
     Route::resource('associados', AssociadoController::class);
+    Route::post('admin/associados/{id}/restore', [AssociadoController::class, 'restore'])->name('admin.associados.restore');
 
     // Gestão de Pedidos/Requerimentos
     Route::resource('pedidos', AdminPedidoController::class);

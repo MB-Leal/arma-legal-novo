@@ -21,8 +21,10 @@ class DashboardController extends Controller
         ];
 
         // 2. Busca os últimos 10 pedidos com os relacionamentos carregados
-        // Importante: use 'with' para não dar erro de 'property of non-object'
-        $pedidosRecentes = PedidoArma::with(['associado', 'modelo'])
+        // Importante: use 'with' para não dar erro de 'property of non-object'       
+        $pedidosRecentes = PedidoArma::with(['associado' => function ($query) {
+            $query->withTrashed(); // Permite carregar o associado mesmo que ele tenha sido deletado
+        }, 'modelo'])
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();

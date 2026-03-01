@@ -13,10 +13,10 @@
         
         <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6 bg-slate-900/60 p-8 rounded-3xl border border-white/5 backdrop-blur-xl shadow-2xl">
             <div class="flex items-center gap-6">
-                <img src="{{ asset('imagens/logo_faspm.png') }}" class="h-16 md:h-20 drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                <img src="{{ asset('imagens/fas.png') }}" class="h-16 md:h-20 drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]">
                 <div>
                     <h1 class="text-3xl md:text-5xl font-black uppercase tracking-tighter italic">Arma <span class="text-blue-500">Legal</span></h1>
-                    <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-[0.2em]">Programa de Aquisição - FASPM</p>
+                    <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-[0.2em]">Programa de Aquisição de armamento para contribuintes FASPM</p>
                 </div>
             </div>
 
@@ -61,9 +61,25 @@
 
                     <div class="mt-auto space-y-3">
                         <div class="flex justify-between items-center bg-white/5 rounded-xl px-4 py-2">
-                            <span class="text-[9px] font-bold text-slate-500 uppercase">Investimento</span>
-                            <span class="text-lg font-black text-white tracking-tighter">R$ {{ number_format($modelo->preco, 2, ',', '.') }}</span>
+                            <span class="text-[9px] font-bold text-slate-500 uppercase">Preço à vista</span>
+                            {{-- AJUSTE: Aplicado taxa de 0.9% sobre o preço de custo --}}
+                            <span class="text-lg font-black text-white tracking-tighter">R$ {{ number_format($modelo->preco * 1.009, 2, ',', '.') }}</span>
                         </div>
+                        @if($modelo->quantidade <= 2)
+        <div class="bg-amber-500/10 border border-amber-500/20 rounded-lg p-2 flex items-center justify-center gap-2">
+            <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+            </span>
+            <p class="text-[10px] font-black text-amber-500 uppercase tracking-widest">
+                Restam apenas {{ $modelo->quantidade }} {{ $modelo->quantidade > 1 ? 'unidades' : 'unidade' }}!
+            </p>
+        </div>
+    @else
+        <div class="text-[9px] font-bold text-slate-500 uppercase text-right italic">
+            Disponível em estoque
+        </div>
+    @endif
 
                         <button @click="arma = {{ $modelo->toJson() }}; openModal = true" 
                                 class="w-full bg-blue-700 hover:bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2">
@@ -154,7 +170,8 @@
                             <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Valor do Equipamento</span>
                             <div class="text-right">
                                 <span class="text-xs font-bold text-slate-400">R$</span>
-                                <span class="text-4xl font-black text-white tracking-tighter" x-text="parseFloat(arma.preco).toLocaleString('pt-BR', {minimumFractionDigits: 2})"></span>
+                                {{-- AJUSTE: Aplicado taxa de 0.9% no cálculo em tempo real do modal --}}
+                                <span class="text-4xl font-black text-white tracking-tighter" x-text="(parseFloat(arma.preco) * 1.009).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span>
                             </div>
                         </div>
                         <a :href="'/simulador/' + arma.id" 

@@ -14,8 +14,8 @@
 
     <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 mb-6">
         <form action="{{ route('associados.index') }}" method="GET" class="flex gap-4">
-            <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por Nome ou CPF..." 
-                   class="flex-grow p-3 bg-slate-50 border-2 border-slate-100 rounded-lg outline-none focus:border-blue-900 font-bold text-sm transition">
+            <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por Nome ou CPF..."
+                class="flex-grow p-3 bg-slate-50 border-2 border-slate-100 rounded-lg outline-none focus:border-blue-900 font-bold text-sm transition">
             <button type="submit" class="bg-slate-800 text-white px-6 rounded-lg font-black text-xs uppercase">Filtrar</button>
         </form>
     </div>
@@ -54,6 +54,18 @@
                             @csrf @method('DELETE')
                             <button type="submit" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button>
                         </form>
+                        @if($asso->trashed())
+                        <span class="px-2 py-1 bg-red-100 text-red-700 text-[10px] font-black rounded-full uppercase">Excluído</span>
+
+                        <form action="{{ route('admin.associados.restore', $asso->id) }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" class="text-blue-600 hover:text-blue-800 font-black text-[10px] uppercase ml-2" title="Reativar Militar">
+                                <i class="fa-solid fa-trash-arrow-up"></i> Reativar
+                            </button>
+                        </form>
+                        @else
+                        <span class="px-2 py-1 bg-green-100 text-green-700 text-[10px] font-black rounded-full uppercase">Ativo</span>
+                        @endif
                     </td>
                 </tr>
                 @endforeach

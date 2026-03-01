@@ -13,6 +13,32 @@
         </a>
     </div>
 
+    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+        <form action="{{ route('modelos.index') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-end">
+            <div class="flex-grow w-full">
+                <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Filtrar por Fabricante</label>
+                <select name="fabricante" class="w-full p-3 bg-slate-50 border-2 border-slate-100 rounded-lg outline-none focus:border-blue-900 font-bold text-sm transition uppercase">
+                    <option value="">Todos os Fabricantes</option>
+                    @foreach($fabricantes as $fab)
+                        <option value="{{ $fab }}" {{ request('fabricante') == $fab ? 'selected' : '' }}>
+                            {{ $fab }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="flex gap-2 w-full md:w-auto">
+                <button type="submit" class="flex-grow md:flex-none bg-slate-800 text-white px-8 py-3 rounded-lg font-black text-xs uppercase hover:bg-slate-700 transition">
+                    Filtrar
+                </button>
+                @if(request('fabricante'))
+                    <a href="{{ route('modelos.index') }}" class="flex-grow md:flex-none bg-slate-100 text-slate-500 px-6 py-3 rounded-lg font-black text-xs uppercase hover:bg-slate-200 transition text-center">
+                        Limpar
+                    </a>
+                @endif
+            </div>
+        </form>
+    </div>
+
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
@@ -21,7 +47,7 @@
                         <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Modelo / Nome</th>
                         <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Fabricante</th>
                         <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Calibre</th>
-                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Quantidade</th>
+                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Quantidade</th>
                         <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Preço Base</th>
                         <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Ações</th>
                     </tr>
@@ -30,6 +56,7 @@
                     @forelse($modelos as $modelo)
                     <tr class="hover:bg-slate-50/50 transition duration-200">
                         <td class="px-6 py-4">
+                            <div class="text-[10px] font-black text-blue-600 uppercase">{{ $modelo->tipo }}</div>
                             <div class="text-sm font-bold text-slate-800 uppercase leading-none">{{ $modelo->nome }}</div>
                             <div class="text-[10px] text-slate-400 font-bold uppercase mt-1">Código: {{ $modelo->codigo }}</div>
                         </td>
@@ -42,7 +69,9 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-center">
-                            <span class="text-xs font-bold text-slate-600 uppercase">{{ $modelo->quantidade }}</span>
+                            <span class="text-xs font-bold {{ $modelo->quantidade <= 2 ? 'text-red-600' : 'text-slate-600' }} uppercase">
+                                {{ $modelo->quantidade }}
+                            </span>
                         </td>
                         <td class="px-6 py-4 text-center">
                             <div class="text-sm font-black text-blue-900">
@@ -70,11 +99,11 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-12 text-center">
+                        <td colspan="6" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center">
                                 <i class="fa-solid fa-box-open text-slate-200 text-4xl mb-4"></i>
-                                <p class="text-slate-400 font-bold uppercase text-xs tracking-widest">Nenhum modelo cadastrado no sistema.</p>
-                                <a href="{{ route('modelos.create') }}" class="text-blue-900 text-[10px] font-black uppercase mt-2 hover:underline">Cadastrar o primeiro agora</a>
+                                <p class="text-slate-400 font-bold uppercase text-xs tracking-widest">Nenhum modelo encontrado.</p>
+                                <a href="{{ route('modelos.index') }}" class="text-blue-900 text-[10px] font-black uppercase mt-2 hover:underline">Limpar filtros</a>
                             </div>
                         </td>
                     </tr>

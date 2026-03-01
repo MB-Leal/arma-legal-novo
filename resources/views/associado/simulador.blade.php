@@ -4,18 +4,17 @@
 <div class="min-h-screen bg-slate-950 text-white selection:bg-blue-500/30" 
      style="background-image: linear-gradient(rgba(2, 6, 23, 0.94), rgba(2, 6, 23, 0.94)), url('{{ asset('imagens/banner-militar.jpg') }}'); background-size: cover; background-position: center; background-attachment: fixed;"
      x-data="{ 
-        precoBase: {{ $modelo->preco }},
-        taxasMap: {{ $taxas->toJson() }},
-        parcelas: 12,
-        get percentual() {
-            return parseFloat(this.taxasMap[this.parcelas] || 0);
-        },
-        get total() { 
-            return this.precoBase * (1 + this.percentual);
-        },
-        get valorParcela() { return this.total / this.parcelas }
-     }">
-
+    precoBase: {{ $modelo->preco }},
+    taxasMap: {{ $taxas->toJson() }},
+    parcelas: 12,
+    get percentual() {
+        return parseFloat(this.taxasMap[this.parcelas] || 0);
+    },
+    get total() { 
+        return this.precoBase * (1 + this.percentual);
+    },
+    get valor_parcela() { return this.total / this.parcelas } {{-- Ajustado nome --}}
+}">
     <div class="container mx-auto px-4 py-12">
         
         <div class="mb-10 flex items-center gap-6 bg-slate-900/60 p-8 rounded-[2.5rem] border border-white/5 backdrop-blur-xl shadow-2xl">
@@ -69,7 +68,7 @@
                 <div class="bg-blue-900/10 p-6 rounded-2xl border border-blue-500/20 flex items-start gap-5">
                     <i class="fa-solid fa-shield-halved text-blue-500 text-xl mt-1"></i>
                     <p class="text-[10px] text-slate-400 font-bold uppercase leading-relaxed">
-                        Este simulador apresenta os valores base para aquisição, e é composto por valor + taxa administrativa, pode seofrer pequena vaiação. Então no momento da assinatura do contrato confira os dados sempre.
+                        Este simulador apresenta os valores base para aquisição, e é composto por valor + taxa administrativa, pode sofrer pequena variação. Então no momento da assinatura do contrato confira os dados sempre.
                     </p>
                 </div>
             </div>
@@ -85,7 +84,7 @@
                             <span class="block text-[10px] text-slate-500 font-black uppercase mb-2 tracking-widest">Valor de cada Parcela</span>
                             <div class="flex items-baseline gap-2">
                                 <span class="text-xl font-bold text-blue-500">R$</span>
-                                <span class="text-5xl font-black text-white tracking-tighter" x-text="valorParcela.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span>
+                                <span class="text-3xl font-black text-white tracking-tighter" x-text="valor_parcela.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span>
                             </div>
                         </div>
 
@@ -103,6 +102,7 @@
                     <form action="{{ route('associado.conferir') }}" method="POST" class="mt-12">
                         @csrf
                         <input type="hidden" name="modelo_id" value="{{ $modelo->id }}">
+                        <input type="hidden" name="valor_parcela" value="valor_parcela">
                         <input type="hidden" name="parcelas" :value="parcelas">
                         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-5 rounded-[1.5rem] shadow-xl shadow-blue-900/40 transition-all duration-300 uppercase tracking-[0.2em] text-xs flex items-center justify-center group border border-blue-400/30">
                             Confirmar Aquisição
