@@ -72,9 +72,10 @@
                 SECRETARIA DE ESTADO DE SEGURANÇA PÚBLICA E DEFESA SOCIAL<br>
                 POLÍCIA MILITAR DO PARÁ<br>
                 FUNDO DE ASSISTÊNCIA SOCIAL DA POLÍCIA MILITAR
+                ARMA LEGAL
             </td>
             <td width="90" style="text-align: right;">
-                <img src="{{ public_path('imagens/brasao_PMPA.png') }}" class="logo-img">
+                <img src="{{ public_path('imagens/Brasao_PMPA.png') }}" class="logo-img">
             </td>
         </tr>
     </table>
@@ -169,7 +170,7 @@
     </div>
 
     <div class="obs-section">
-        <strong>Obs.:</strong> Documento válido por 15 dias, para dar início o processo é necessário entregar na seção arma legal FASPM, ou mandar pelo whatsapp (91) 98895-3551.<br>
+        <strong>Obs.:</strong> Documento válido por 10 dias, para dar início o processo é necessário entregar na seção arma legal FASPM, ou mandar pelo whatsapp (91) 98895-3551.<br>
         <strong>IMPORTANTE:</strong> Anexar junto a este documento a Cópia da Identidade Funcional e a Cópia do Comprovante de Residência Atualizado.
     </div>
     <br><br>
