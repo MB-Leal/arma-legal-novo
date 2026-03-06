@@ -97,7 +97,7 @@
         </div>
 
         <div class="flex flex-col md:flex-row justify-between items-center text-slate-500 text-xs font-bold uppercase tracking-widest">
-            <div class="mb-4 md:mb-0 text-[10px]">
+            <div class="mb-4 md:mb-0 text-[12px]">
                 &copy; {{ date('Y') }} FASPM - Fundo de Assistência Social da PMPA
             </div>
             <div class="flex gap-6">

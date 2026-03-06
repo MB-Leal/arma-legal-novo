@@ -40,10 +40,15 @@
                     <i class="fa-solid fa-users mr-3 text-slate-400 group-hover:text-white"></i>
                     <span class="text-sm font-bold uppercase">Gestão de Associados</span>
                 </a>
+                <a href="{{ route('admin.usuarios.index') }}"
+                    class="flex items-center p-3 {{ request()->routeIs('admin.usuarios.*') ? 'bg-blue-900 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} rounded-lg transition group">
+                    <i class="fa-regular fa-user mr-3 {{ request()->routeIs('admin.usuarios.*') ? 'text-white' : 'text-slate-400 group-hover:text-white' }}"></i>
+                    <span class="text-sm font-bold uppercase">Gestão de Usuários</span>
+                </a>
                 <a href="{{ route('associado.catalogo') }}" class="flex items-center p-3 {{ request()->routeIs('associados.*') ? 'bg-blue-900' : 'hover:bg-slate-800' }} rounded-lg transition group">
                     <i class="fa-solid fa-eye mr-3 text-slate-400 group-hover:text-white"></i>
                     <span class="text-sm font-bold uppercase">Ver Catálogo</span>
-                </a>                
+                </a>
                 <a href="{{ route('admin.logs') }}"
                     class="flex items-center p-3 {{ request()->routeIs('admin.logs') ? 'bg-blue-900 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} rounded-lg transition group">
                     <i class="fa-solid fa-shield-halved mr-3 {{ request()->routeIs('admin.logs') ? 'text-white' : 'text-slate-400 group-hover:text-white' }}"></i>

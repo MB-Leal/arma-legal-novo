@@ -63,9 +63,18 @@
                 class="w-full bg-blue-900 hover:bg-blue-800 text-white font-black py-4 rounded shadow-lg transition duration-200 uppercase tracking-widest text-sm">
                 Validar e Acessar
             </button>
-            <div style="position: center; bottom: 20px; right: 20px; background: #333; color: #fff; padding: 10px; border-radius: 5px; font-family: sans-serif; font-size: 14px;">
-                🔔 IMPORTANTE: Caso seja associado mas não consiga entrar no sistema, favor, entre em contato conosco pelo Whatsapp: 9198895-3551
-            </div>
+            <div class="mt-8 bg-slate-800 text-white p-4 rounded-xl text-[11px] font-bold uppercase tracking-widest shadow-lg border border-slate-700 text-center leading-relaxed">
+    <div class="flex items-center justify-center gap-2 mb-1">
+        <span class="animate-pulse">🔔</span> 
+        <span class="text-blue-400">Importante</span>
+    </div>
+    Caso seja associado mas não consiga entrar no sistema, entre em contato conosco pelo 
+    <a href="https://wa.me/5591988953551?text=Olá, sou associado e não estou conseguindo acessar o sistema Arma Legal." 
+       target="_blank" 
+       class="block mt-2 text-sm font-black text-white hover:text-blue-400 transition-all underline decoration-blue-500/50 decoration-2 underline-offset-4">
+       <i class="fa-brands fa-whatsapp mr-1"></i> (91) 98895-3551
+    </a>
+</div>
 
         </form>
 
